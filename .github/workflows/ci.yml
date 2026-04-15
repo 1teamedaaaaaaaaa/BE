@@ -1,16 +1,31 @@
-name: PR CI
+name: PR to Develop CI
 
 on:
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, main ]
 
 jobs:
-  placeholder-check:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Placeholder CI check
-        run: echo "Temporary CI passed"
+      - name: Show files
+        run: find . -maxdepth 3 -type f | sort
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Grant execute permission
+        run: chmod +x ./gradlew
+
+      - name: Run tests
+        run: ./gradlew clean test
+
+      - name: Build check
+        run: ./gradlew build -x test
