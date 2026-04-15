@@ -8,6 +8,6 @@ public class TestController {
 
     @GetMapping("/")
     public String home() {
-        return "Hoppin serdnksndansdjkaver is running";
+        return "Hoppin server is running";
     }
 }
