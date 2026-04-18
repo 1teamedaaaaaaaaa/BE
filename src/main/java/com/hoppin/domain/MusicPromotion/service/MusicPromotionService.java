@@ -83,7 +83,7 @@ public class MusicPromotionService {
     }
 
 
-    // Helper
+    // TODO: 이 아래에 있는 함수들은 Helper로 따로 정리하기
     private String generateUniqueTrackingCode() {
         for (int attempt = 0; attempt < MAX_TRACKING_CODE_GENERATION_ATTEMPTS; attempt++) {
             String trackingCode = trackingCodeGenerator.generate();
