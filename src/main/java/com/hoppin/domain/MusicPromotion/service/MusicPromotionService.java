@@ -2,6 +2,7 @@ package com.hoppin.domain.MusicPromotion.service;
 
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionResponse;
+import com.hoppin.domain.MusicPromotion.dto.MusicPromotionDetailResponse;
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
 import com.hoppin.domain.Musician.entity.Musician;
@@ -65,6 +66,24 @@ public class MusicPromotionService {
         return CreateMusicPromotionResponse.from(promotion, trackingLink, detailUrl);
     }
 
+    @Transactional(readOnly = true)
+    public MusicPromotionDetailResponse getMusicPromotion(Long promotionId) {
+        MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
+                .orElseThrow(() -> new ResourceNotFoundException("음악 홍보를 찾을 수 없습니다."));
+
+        PromotionTrackingLink trackingLink = trackingLinkRepository.findByPromotionId(promotionId)
+                .stream()
+                .filter(link -> link.getChannel() == PromotionChannel.INSTAGRAM)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("홍보 추적 링크를 찾을 수 없습니다."));
+
+        String detailUrl = frontendBaseUrl + "/music-promotions/" + promotion.getId();
+
+        return MusicPromotionDetailResponse.from(promotion, trackingLink);
+    }
+
+
+    // Helper
     private String generateUniqueTrackingCode() {
         for (int attempt = 0; attempt < MAX_TRACKING_CODE_GENERATION_ATTEMPTS; attempt++) {
             String trackingCode = trackingCodeGenerator.generate();
