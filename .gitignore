@@ -11,8 +11,4 @@
 .DS_Store
 
 # env
-<<<<<<< HEAD
 .env
-=======
-.env
->>>>>>> 0051ae8 (feat : 프로젝트 초기 gitignore 설정)

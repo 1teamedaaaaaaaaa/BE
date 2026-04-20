@@ -66,4 +66,3 @@ jobs:
 
             docker pull jinsungzz/hoppin:staging
             docker compose up -d --force-recreate
-            docker logs --tail=200 hoppin
