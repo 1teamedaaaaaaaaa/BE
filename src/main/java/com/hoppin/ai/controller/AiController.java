@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AiController {
 
-    private final AiService testAiService;
+    private final AiService AiService;
 
     @Operation(
             summary = "AI 분석 요청",
@@ -22,6 +22,6 @@ public class AiController {
     )
     @PostMapping("/analyze")
     public AnalysisResponseDto analyze(@RequestBody AnalysisRequestDto request) {
-        return testAiService.callAi(request);
+        return AiService.callAi(request);
     }
 }
