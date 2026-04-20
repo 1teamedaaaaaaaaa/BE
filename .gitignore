@@ -1,8 +1,3 @@
-# Spring config
-src/main/resources/application.yaml
-src/main/resources/application-local.yaml
-src/main/resources/application-prod.yaml
-
 # build
 /build/
 /.gradle/
@@ -16,8 +11,4 @@ src/main/resources/application-prod.yaml
 .DS_Store
 
 # env
-<<<<<<< HEAD
 .env
-=======
-.env
->>>>>>> 0051ae8 (feat : 프로젝트 초기 gitignore 설정)
