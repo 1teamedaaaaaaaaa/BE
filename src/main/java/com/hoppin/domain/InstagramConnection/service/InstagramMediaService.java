@@ -1,4 +1,4 @@
-package com.hoppin.domain.Instagram.service;
+package com.hoppin.domain.InstagramConnection.service;
 
 import com.hoppin.domain.Instagram.client.InstagramGraphClient;
 import com.hoppin.domain.Instagram.dto.InstagramInsightApiResponse;
