@@ -1,6 +1,7 @@
 package com.hoppin.domain.InstagramConnection.entity;
 
-import com.hoppin.domain.Musician.entity.Musician;
+import com.hoppin.domain.common.entity.BaseEntity;
+import com.hoppin.domain.musician.entity.Musician;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "instagram_connection")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class InstagramConnection {
+public class InstagramConnection extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,9 +39,6 @@ public class InstagramConnection {
     @Column(name = "connected_at", nullable = false)
     private LocalDateTime connectedAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
     public InstagramConnection(
             Musician musician,
             String instagramAccountId,
@@ -54,13 +52,11 @@ public class InstagramConnection {
         this.accessToken = accessToken;
         this.tokenExpiresAt = tokenExpiresAt;
         this.connectedAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateToken(String accessToken, LocalDateTime tokenExpiresAt) {
         this.accessToken = accessToken;
         this.tokenExpiresAt = tokenExpiresAt;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateProfileAndToken(
@@ -71,6 +67,5 @@ public class InstagramConnection {
         this.instagramUsername = instagramUsername;
         this.accessToken = accessToken;
         this.tokenExpiresAt = tokenExpiresAt;
-        this.updatedAt = LocalDateTime.now();
     }
 }

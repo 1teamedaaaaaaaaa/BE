@@ -1,6 +1,6 @@
 package com.hoppin.security.filter;
 
-import com.hoppin.auth.token.JwtTokenProvider;
+import com.hoppin.security.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,12 +31,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authorization.substring(7);
 
             if (jwtTokenProvider.validateToken(token)) {
-                Long memberId = jwtTokenProvider.getMemberId(token);
+                Long musicianId = jwtTokenProvider.getMusicianId(token);
                 String role = jwtTokenProvider.getRole(token);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                memberId,
+                                musicianId,
                                 null,
                                 List.of(new SimpleGrantedAuthority("ROLE_" + role))
                         );

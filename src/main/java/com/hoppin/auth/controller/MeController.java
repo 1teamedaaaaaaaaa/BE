@@ -1,22 +1,21 @@
 package com.hoppin.auth.controller;
 
-import com.hoppin.domain.member.entity.Member;
-import com.hoppin.domain.member.repository.MemberRepository;
-import java.util.Map;
-
+import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.domain.musician.repository.MusicianRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Member", description = "회원 정보 조회 API")
+@Tag(name = "Musician", description = "회원 정보 조회 API")
 @RestController
 @RequiredArgsConstructor
 public class MeController {
 
-    private final MemberRepository memberRepository;
+    private final MusicianRepository musicianRepository;
 
     @Operation(
             summary = "내 정보 조회",
@@ -24,17 +23,15 @@ public class MeController {
     )
     @GetMapping("/api/me")
     public Map<String, Object> me(Authentication authentication) {
-        Long memberId = (Long) authentication.getPrincipal();
+        Long musicianId = Long.parseLong(authentication.getName());
 
-        Member member = memberRepository.findById(memberId)
+        Musician musician = musicianRepository.findById(musicianId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         return Map.of(
-                "id", member.getId(),
-                "email", member.getEmail(),
-                "name", member.getName(),
-                "role", member.getRole().name(),
-                "provider", member.getProvider().name()
+                "id", musician.getId(),
+                "artistName", musician.getName(),
+                "email", musician.getEmail() == null ? "" : musician.getEmail()
         );
     }
 }

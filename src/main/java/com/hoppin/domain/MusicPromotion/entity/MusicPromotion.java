@@ -1,6 +1,6 @@
 package com.hoppin.domain.MusicPromotion.entity;
 
-import com.hoppin.domain.Musician.entity.Musician;
+import com.hoppin.domain.musician.entity.Musician;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
