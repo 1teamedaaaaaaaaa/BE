@@ -1,10 +1,10 @@
 package com.hoppin.auth.controller;
 
-import com.hoppin.auth.token.JwtTokenProvider;
+import com.hoppin.security.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.Duration;
+
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +36,7 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("message", "유효한 리프레시 토큰이 없습니다."));
         }
 
-        Long memberId = jwtTokenProvider.getMemberId(refreshToken);
+        Long memberId = jwtTokenProvider.getMusicianId(refreshToken);
         String accessToken = jwtTokenProvider.createAccessToken(memberId, "USER");
 
         return ResponseEntity.ok(Map.of("accessToken", accessToken));

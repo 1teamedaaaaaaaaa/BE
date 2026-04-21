@@ -1,9 +1,11 @@
 package com.hoppin.ai.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hoppin.ai.dto.AnalysisRequestDto;
-import com.hoppin.ai.dto.AnalysisResponseDto;
-import com.hoppin.ai.util.CacheKeyUtil;
+import com.hoppin.infra.ai.dto.AnalysisRequestDto;
+import com.hoppin.infra.ai.dto.AnalysisResponseDto;
+import com.hoppin.infra.ai.service.AiService;
+import com.hoppin.infra.ai.service.OpenAiClient;
+import com.hoppin.infra.ai.util.CacheKeyUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

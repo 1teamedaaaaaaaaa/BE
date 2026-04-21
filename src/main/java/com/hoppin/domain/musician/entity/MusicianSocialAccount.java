@@ -1,6 +1,5 @@
 package com.hoppin.domain.musician.entity;
 
-import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.enumtype.AuthProvider;
 import com.hoppin.domain.musician.enumtype.SocialAccountStatus;
 import jakarta.persistence.*;

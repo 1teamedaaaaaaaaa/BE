@@ -1,7 +1,7 @@
-package com.hoppin.domain.Musician.infrastructure;
+package com.hoppin.domain.musician.infrastructure;
 
-import com.hoppin.domain.Musician.entity.Musician;
-import com.hoppin.domain.Musician.repository.MusicianRepository;
+import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.domain.musician.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
 package com.hoppin.security.handler;
 
-import com.hoppin.auth.token.JwtTokenProvider;
+import com.hoppin.security.jwt.JwtTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,19 +31,36 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
-        Long memberId = ((Number) oAuth2User.getAttributes().get("memberId")).longValue();
+        Object musicianIdObj = oAuth2User.getAttributes().get("musicianId");
+        if (musicianIdObj == null) {
+            throw new IllegalArgumentException("OAuth2 attributes에 musicianId가 없습니다.");
+        }
 
-        String refreshToken = jwtTokenProvider.createRefreshToken(memberId);
+        Long musicianId = ((Number) musicianIdObj).longValue();
+        String role = (String) oAuth2User.getAttributes().getOrDefault("role", "USER");
+
+        String accessToken = jwtTokenProvider.createAccessToken(musicianId, role);
+        String refreshToken = jwtTokenProvider.createRefreshToken(musicianId);
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(Duration.ofMinutes(30))
+                .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(false) // 운영 HTTPS 붙이면 true
-                .sameSite("Lax") // 프론트/백 다른 도메인이면 None
+                .secure(true)
+                .sameSite("None")
                 .path("/")
                 .maxAge(Duration.ofDays(14))
                 .build();
 
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
         getRedirectStrategy().sendRedirect(request, response, frontendBaseUrl + "/login/success");
     }
 }

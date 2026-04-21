@@ -2,8 +2,8 @@ package com.hoppin;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
-import com.hoppin.domain.Musician.entity.Musician;
-import com.hoppin.domain.Musician.repository.MusicianRepository;
+import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.domain.PromotionTrackingClick.entity.PromotionTrackingClick;
 import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionChannel;
