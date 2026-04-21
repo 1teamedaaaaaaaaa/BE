@@ -2,6 +2,7 @@ package com.hoppin.domain.PromotionTrackingClick.entity;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
+import com.hoppin.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "promotion_tracking_click")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PromotionTrackingClick {
+public class PromotionTrackingClick extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
