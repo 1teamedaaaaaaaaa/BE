@@ -1,5 +1,6 @@
 package com.hoppin.domain.MusicPromotion.entity;
 
+import com.hoppin.domain.common.entity.BaseEntity;
 import com.hoppin.domain.musician.entity.Musician;
 
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "music_promotion")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MusicPromotion {
+public class MusicPromotion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,12 +47,6 @@ public class MusicPromotion {
     @Column(name = "short_description", nullable = false, length = 255)
     private String shortDescription;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
     public MusicPromotion(
             Musician musician,
             String activityName,
@@ -70,7 +65,5 @@ public class MusicPromotion {
         this.streamingUrl = streamingUrl;
         this.imageUrl = imageUrl;
         this.shortDescription = shortDescription;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 }

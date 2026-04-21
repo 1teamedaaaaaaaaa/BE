@@ -1,6 +1,7 @@
 package com.hoppin.domain.PromotionTrackingLink.entity;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
+import com.hoppin.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "promotion_tracking_link")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PromotionTrackingLink {
+public class PromotionTrackingLink extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,9 +40,6 @@ public class PromotionTrackingLink {
     @Column(nullable = false)
     private boolean active;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
     public PromotionTrackingLink(
             MusicPromotion promotion,
             PromotionChannel channel,
@@ -55,7 +53,6 @@ public class PromotionTrackingLink {
         this.trackingUrl = trackingUrl;
         this.targetUrl = targetUrl;
         this.active = true;
-        this.createdAt = LocalDateTime.now();
     }
 
     public void deactivate() {
