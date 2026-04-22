@@ -115,3 +115,6 @@ instagram:
     refresh-token-url: https://graph.instagram.com/refresh_access_token
   graph:
     base-url: https://graph.instagram.com/v22.0
+
+server:
+  forward-headers-strategy: framework
