@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoppin.infra.ai.dto.AnalysisRequestDto;
 import com.hoppin.infra.ai.dto.AnalysisResponseDto;
 import com.hoppin.infra.ai.service.AiService;
-import com.hoppin.infra.ai.service.OpenAiClient;
+import com.hoppin.infra.ai.client.OpenAiClient;
 import com.hoppin.infra.ai.util.CacheKeyUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

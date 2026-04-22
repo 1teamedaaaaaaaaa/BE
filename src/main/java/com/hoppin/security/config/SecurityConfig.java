@@ -1,6 +1,7 @@
 package com.hoppin.security.config;
 
 import com.hoppin.security.filter.JwtAuthenticationFilter;
+import com.hoppin.security.handler.OAuth2FailureHandler;
 import com.hoppin.security.handler.OAuth2SuccessHandler;
 import com.hoppin.security.oauth.CustomOAuth2UserService;
 import java.util.List;
@@ -12,6 +13,9 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -25,7 +29,9 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
     @Value("${app.frontend-base-url}")
     private String frontendBaseUrl;
@@ -53,8 +59,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(authorization -> authorization
+                                .authorizationRequestResolver(authorizationRequestResolver)
+                        )
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

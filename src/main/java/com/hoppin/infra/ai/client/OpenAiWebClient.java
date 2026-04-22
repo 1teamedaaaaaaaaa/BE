@@ -1,4 +1,4 @@
-package com.hoppin.infra.ai.service;
+package com.hoppin.infra.ai.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoppin.infra.ai.dto.AnalysisRequestDto;
