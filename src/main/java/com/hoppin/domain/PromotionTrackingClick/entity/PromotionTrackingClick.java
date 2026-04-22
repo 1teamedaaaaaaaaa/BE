@@ -29,6 +29,9 @@ public class PromotionTrackingClick extends BaseEntity {
     @JoinColumn(name = "promotion_id", nullable = false)
     private MusicPromotion promotion;
 
+    @Column(name = "visit_id", length = 50)
+    private String visitId;
+
     @Column(name = "tracking_code", nullable = false, length = 30)
     private String trackingCode;
 
@@ -49,12 +52,14 @@ public class PromotionTrackingClick extends BaseEntity {
 
     public PromotionTrackingClick(
             PromotionTrackingLink trackingLink,
+            String visitId,
             String clickedUrl,
             String ipAddress,
             String userAgent,
             String referer
     ) {
         this.trackingLink = trackingLink;
+        this.visitId = visitId;
         this.promotion = trackingLink.getPromotion();
         this.trackingCode = trackingLink.getTrackingCode();
         this.clickedUrl = clickedUrl;
