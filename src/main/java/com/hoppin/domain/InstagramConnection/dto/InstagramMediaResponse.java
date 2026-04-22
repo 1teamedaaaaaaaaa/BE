@@ -9,6 +9,7 @@ public record InstagramMediaResponse(
         String thumbnailUrl,
         String timestamp,
         Long shareCount,
-        Long profileVisitCount
+        Long profileVisitCount,
+        Long reachCount
 ) {
 }
