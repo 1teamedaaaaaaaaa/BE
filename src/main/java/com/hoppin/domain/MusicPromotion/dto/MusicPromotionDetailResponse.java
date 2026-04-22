@@ -1,10 +1,12 @@
 package com.hoppin.domain.MusicPromotion.dto;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
+import com.hoppin.domain.PromotionStreamingLink.entity.PromotionStreamingLink;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record MusicPromotionDetailResponse(
         Long promotionId,
@@ -14,15 +16,16 @@ public record MusicPromotionDetailResponse(
         String instagramAccount,
         String songTitle,
         LocalDate releaseDate,
-        String streamingUrl,
         String imageUrl,
         String shortDescription,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<StreamingLinkResponse> streamingLinks
 ) {
 
     public static MusicPromotionDetailResponse from(
             MusicPromotion promotion,
-            PromotionTrackingLink trackingLink
+            PromotionTrackingLink trackingLink,
+            List<PromotionStreamingLink> streamingLinks
     ) {
         return new MusicPromotionDetailResponse(
                 promotion.getId(),
@@ -32,10 +35,29 @@ public record MusicPromotionDetailResponse(
                 promotion.getInstagramAccount(),
                 promotion.getSongTitle(),
                 promotion.getReleaseDate(),
-                promotion.getStreamingUrl(),
                 promotion.getImageUrl(),
                 promotion.getShortDescription(),
-                promotion.getCreatedAt()
+                promotion.getCreatedAt(),
+                streamingLinks.stream()
+                        .map(StreamingLinkResponse::from)
+                        .toList()
         );
+    }
+
+    public record StreamingLinkResponse(
+            String streamingCode,
+            String domain,
+            String redirectUrl,
+            Integer displayOrder
+    ) {
+
+        public static StreamingLinkResponse from(PromotionStreamingLink streamingLink) {
+            return new StreamingLinkResponse(
+                    streamingLink.getStreamingCode(),
+                    streamingLink.getDomain(),
+                    streamingLink.getRedirectUrl(),
+                    streamingLink.getDisplayOrder()
+            );
+        }
     }
 }

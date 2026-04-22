@@ -15,7 +15,6 @@ public record CreateMusicPromotionResponse(
         String instagramAccount,
         String songTitle,
         LocalDate releaseDate,
-        String streamingUrl,
         String imageUrl,
         String shortDescription,
         LocalDateTime createdAt
@@ -35,7 +34,6 @@ public record CreateMusicPromotionResponse(
                 promotion.getInstagramAccount(),
                 promotion.getSongTitle(),
                 promotion.getReleaseDate(),
-                promotion.getStreamingUrl(),
                 promotion.getImageUrl(),
                 promotion.getShortDescription(),
                 promotion.getCreatedAt()
