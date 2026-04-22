@@ -1,5 +1,6 @@
 package com.hoppin.domain.musician.entity;
 
+import com.hoppin.domain.common.entity.BaseEntity;
 import com.hoppin.domain.musician.enumtype.AuthProvider;
 import com.hoppin.domain.musician.enumtype.SocialAccountStatus;
 import jakarta.persistence.*;
@@ -25,7 +26,7 @@ import java.time.LocalDateTime;
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MusicianSocialAccount {
+public class MusicianSocialAccount extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
