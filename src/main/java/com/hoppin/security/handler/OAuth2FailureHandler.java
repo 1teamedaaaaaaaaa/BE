@@ -4,15 +4,22 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
+
+    @Value("${app.frontend-base-url}")
+    private String frontendBaseUrl;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
@@ -28,6 +35,10 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
             log.error("oauth2 error description = {}", oauth2Exception.getError().getDescription());
         }
 
-        getRedirectStrategy().sendRedirect(request, response, "/login?error");
+        getRedirectStrategy().sendRedirect(
+                request,
+                response,
+                frontendBaseUrl + "/login?error"
+        );
     }
 }
