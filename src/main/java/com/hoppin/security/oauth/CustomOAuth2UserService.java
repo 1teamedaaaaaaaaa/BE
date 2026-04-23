@@ -1,9 +1,9 @@
 package com.hoppin.security.oauth;
 
 import com.hoppin.domain.musician.entity.Musician;
-import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.domain.musician.entity.MusicianSocialAccount;
 import com.hoppin.domain.musician.enumtype.AuthProvider;
+import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.domain.musician.repository.MusicianSocialAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,19 +32,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        if (!"naver".equals(registrationId)) {
-            throw new OAuth2AuthenticationException("지원하지 않는 로그인입니다.");
-        }
+        AuthProvider provider = getProvider(registrationId);
+        OAuth2UserInfo userInfo = getOAuth2UserInfo(provider, oAuth2User.getAttributes());
 
-        OAuth2UserInfo userInfo = new NaverOAuth2UserInfo(oAuth2User.getAttributes());
+
+        System.out.println("registrationId = " + registrationId);
+        System.out.println("google attributes = " + oAuth2User.getAttributes());
+        System.out.println("providerUserId = " + userInfo.getProviderId());
+        System.out.println("provider = " + provider);
 
         String providerUserId = userInfo.getProviderId();
         if (providerUserId == null || providerUserId.isBlank()) {
-            throw new OAuth2AuthenticationException("네이버 사용자 식별값이 없습니다.");
+            throw new OAuth2AuthenticationException("소셜 사용자 식별값이 없습니다.");
         }
 
         Musician musician = musicianSocialAccountRepository
-                .findByProviderAndProviderUserId(AuthProvider.NAVER, providerUserId)
+                .findByProviderAndProviderUserId(provider, providerUserId)
                 .map(MusicianSocialAccount::getMusician)
                 .map(existingMusician -> {
                     String resolvedName = resolveName(userInfo.getName(), existingMusician.getName());
@@ -52,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     existingMusician.updateProfile(resolvedName, resolvedEmail);
                     return existingMusician;
                 })
-                .orElseGet(() -> createNewMusicianWithSocialAccount(userInfo, providerUserId));
+                .orElseGet(() -> createNewMusicianWithSocialAccount(provider, userInfo, providerUserId));
 
         List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_USER")
@@ -68,7 +71,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return new DefaultOAuth2User(authorities, attributes, "musicianId");
     }
 
-    private Musician createNewMusicianWithSocialAccount(OAuth2UserInfo userInfo, String providerUserId) {
+    private Musician createNewMusicianWithSocialAccount(
+            AuthProvider provider,
+            OAuth2UserInfo userInfo,
+            String providerUserId
+    ) {
         String name = resolveName(userInfo.getName(), "뮤지션");
         String email = resolveEmail(userInfo.getEmail(), providerUserId + "@social.local");
 
@@ -77,7 +84,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         MusicianSocialAccount socialAccount = new MusicianSocialAccount(
                 musician,
-                AuthProvider.NAVER,
+                provider,
                 providerUserId,
                 userInfo.getEmail(),
                 userInfo.getName()
@@ -86,6 +93,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         musicianSocialAccountRepository.save(socialAccount);
 
         return musician;
+    }
+
+    private AuthProvider getProvider(String registrationId) {
+        return switch (registrationId.toLowerCase()) {
+            case "naver" -> AuthProvider.NAVER;
+            case "kakao" -> AuthProvider.KAKAO;
+            case "google" -> AuthProvider.GOOGLE;
+            default -> throw new OAuth2AuthenticationException("지원하지 않는 로그인입니다.");
+        };
+    }
+
+    private OAuth2UserInfo getOAuth2UserInfo(AuthProvider provider, Map<String, Object> attributes) {
+        return switch (provider) {
+            case NAVER -> new NaverOAuth2UserInfo(attributes);
+            case KAKAO -> new KakaoOAuth2UserInfo(attributes);
+            case GOOGLE -> new GoogleOAuth2UserInfo(attributes);
+            default -> throw new OAuth2AuthenticationException("지원하지 않는 로그인입니다.");
+        };
     }
 
     private String resolveName(String socialName, String fallback) {

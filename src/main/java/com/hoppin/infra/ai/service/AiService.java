@@ -2,6 +2,7 @@ package com.hoppin.infra.ai.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hoppin.infra.ai.client.OpenAiClient;
 import com.hoppin.infra.ai.dto.AnalysisRequestDto;
 import com.hoppin.infra.ai.dto.AnalysisResponseDto;
 import com.hoppin.infra.ai.util.CacheKeyUtil;
