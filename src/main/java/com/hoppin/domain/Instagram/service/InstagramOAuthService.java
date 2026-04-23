@@ -88,12 +88,14 @@ public class InstagramOAuthService {
             String accessToken,
             LocalDateTime tokenExpiresAt
     ) {
-        Musician musician = musicianRepository.save(
-                new Musician(
-                        instagramUsername,
-                        "instagram-" + instagramAccountId + "@instagram.local"
-                )
-        );
+        String email = "instagram-" + instagramAccountId + "@instagram.local";
+        Musician musician = musicianRepository.findByEmail(email)
+                .orElseGet(() -> musicianRepository.save(
+                        new Musician(
+                                instagramUsername,
+                                email
+                        )
+                ));
 
         return instagramConnectionRepository.save(
                 new InstagramConnection(

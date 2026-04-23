@@ -1,8 +1,7 @@
-package com.hoppin.domain.PromotionTrackingClick.entity;
+package com.hoppin.domain.PromotionStreamingClick.entity;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
-import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
-import com.hoppin.domain.common.entity.BaseEntity;
+import com.hoppin.domain.PromotionStreamingLink.entity.PromotionStreamingLink;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,31 +11,37 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "promotion_tracking_click")
+@Table(name = "promotion_streaming_click")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PromotionTrackingClick extends BaseEntity {
+public class PromotionStreamingClick {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "click_id")
+    @Column(name = "streaming_click_id")
     private Long id;
 
+    @Column(name = "visit_id", length = 50)
+    private String visitId;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tracking_link_id", nullable = false)
-    private PromotionTrackingLink trackingLink;
+    @JoinColumn(name = "streaming_link_id", nullable = false)
+    private PromotionStreamingLink streamingLink;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "promotion_id", nullable = false)
     private MusicPromotion promotion;
 
-    @Column(name = "visit_id", length = 50)
-    private String visitId;
+    @Column(name = "streaming_code", nullable = false, length = 30)
+    private String streamingCode;
 
-    @Column(name = "tracking_code", nullable = false, length = 30)
-    private String trackingCode;
+    @Column(nullable = false, length = 255)
+    private String domain;
 
     @Column(name = "clicked_url", nullable = false, length = 1000)
     private String clickedUrl;
+
+    @Column(name = "destination_url", nullable = false, length = 1000)
+    private String destinationUrl;
 
     @Column(name = "ip_address", length = 100)
     private String ipAddress;
@@ -50,18 +55,20 @@ public class PromotionTrackingClick extends BaseEntity {
     @Column(name = "clicked_at", nullable = false)
     private LocalDateTime clickedAt;
 
-    public PromotionTrackingClick(
-            PromotionTrackingLink trackingLink,
+    public PromotionStreamingClick(
+            PromotionStreamingLink streamingLink,
             String visitId,
             String clickedUrl,
             String ipAddress,
             String userAgent,
             String referer
     ) {
-        this.trackingLink = trackingLink;
+        this.streamingLink = streamingLink;
+        this.promotion = streamingLink.getPromotion();
+        this.streamingCode = streamingLink.getStreamingCode();
+        this.domain = streamingLink.getDomain();
+        this.destinationUrl = streamingLink.getOriginalUrl();
         this.visitId = visitId;
-        this.promotion = trackingLink.getPromotion();
-        this.trackingCode = trackingLink.getTrackingCode();
         this.clickedUrl = clickedUrl;
         this.ipAddress = ipAddress;
         this.userAgent = userAgent;

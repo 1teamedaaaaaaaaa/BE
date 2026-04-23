@@ -24,6 +24,11 @@ public class MusicianRepositoryJpaImpl implements MusicianRepository {
     }
 
     @Override
+    public Optional<Musician> findByEmail(String email) {
+        return musicianJpaRepository.findByEmail(email);
+    }
+
+    @Override
     public boolean existsById(Long musicianId) {
         return musicianJpaRepository.existsById(musicianId);
     }

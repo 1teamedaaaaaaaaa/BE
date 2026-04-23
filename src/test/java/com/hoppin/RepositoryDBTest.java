@@ -52,7 +52,6 @@ class RepositoryDBTest {
                         "musician_a",
                         "밤의 파도",
                         LocalDate.of(2026, 5, 1),
-                        "https://open.spotify.com/track/example",
                         "https://cdn.example.com/image.jpg",
                         "새벽 감성을 담은 신곡"
                 )
@@ -71,6 +70,7 @@ class RepositoryDBTest {
         PromotionTrackingClick click = trackingClickRepository.save(
                 new PromotionTrackingClick(
                         trackingLink,
+                        "test-visit-id",
                         "http://localhost:8080/r/a7x9k2",
                         "127.0.0.1",
                         "test-agent",

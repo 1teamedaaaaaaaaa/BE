@@ -7,5 +7,6 @@ import java.util.Optional;
 public interface MusicianRepository {
     Musician save(Musician musician);
     Optional<Musician> findById(Long musicianId);
+    Optional<Musician> findByEmail(String email);
     boolean existsById(Long musicianId);
 }

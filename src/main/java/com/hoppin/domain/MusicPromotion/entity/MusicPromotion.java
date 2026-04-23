@@ -38,9 +38,6 @@ public class MusicPromotion extends BaseEntity {
     @Column(name = "release_date", nullable = false)
     private LocalDate releaseDate;
 
-    @Column(name = "streaming_url", nullable = false, length = 500)
-    private String streamingUrl;
-
     @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
 
@@ -53,7 +50,6 @@ public class MusicPromotion extends BaseEntity {
             String instagramAccount,
             String songTitle,
             LocalDate releaseDate,
-            String streamingUrl,
             String imageUrl,
             String shortDescription
     ) {
@@ -62,7 +58,6 @@ public class MusicPromotion extends BaseEntity {
         this.instagramAccount = instagramAccount;
         this.songTitle = songTitle;
         this.releaseDate = releaseDate;
-        this.streamingUrl = streamingUrl;
         this.imageUrl = imageUrl;
         this.shortDescription = shortDescription;
     }
