@@ -1,10 +1,13 @@
 package com.hoppin.domain.musician.infrastructure;
 
 import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.domain.musician.enumtype.MusicianStatus;
 import com.hoppin.domain.musician.repository.MusicianRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -31,5 +34,15 @@ public class MusicianRepositoryJpaImpl implements MusicianRepository {
     @Override
     public boolean existsById(Long musicianId) {
         return musicianJpaRepository.existsById(musicianId);
+    }
+
+    @Override
+    public List<Musician> findAllByStatusAndWithdrawnAtBefore(MusicianStatus status, LocalDateTime withdrawnAt) {
+        return musicianJpaRepository.findAllByStatusAndWithdrawnAtBefore(status, withdrawnAt);
+    }
+
+    @Override
+    public void deleteAll(List<Musician> musicians) {
+        musicianJpaRepository.deleteAll(musicians);
     }
 }

@@ -35,12 +35,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         AuthProvider provider = getProvider(registrationId);
         OAuth2UserInfo userInfo = getOAuth2UserInfo(provider, oAuth2User.getAttributes());
 
-
-        System.out.println("registrationId = " + registrationId);
-        System.out.println("google attributes = " + oAuth2User.getAttributes());
-        System.out.println("providerUserId = " + userInfo.getProviderId());
-        System.out.println("provider = " + provider);
-
         String providerUserId = userInfo.getProviderId();
         if (providerUserId == null || providerUserId.isBlank()) {
             throw new OAuth2AuthenticationException("소셜 사용자 식별값이 없습니다.");
@@ -50,9 +44,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .findByProviderAndProviderUserId(provider, providerUserId)
                 .map(MusicianSocialAccount::getMusician)
                 .map(existingMusician -> {
+                    validateActive(existingMusician);
+
                     String resolvedName = resolveName(userInfo.getName(), existingMusician.getName());
                     String resolvedEmail = resolveEmail(userInfo.getEmail(), existingMusician.getEmail());
                     existingMusician.updateProfile(resolvedName, resolvedEmail);
+
                     return existingMusician;
                 })
                 .orElseGet(() -> createNewMusicianWithSocialAccount(provider, userInfo, providerUserId));
@@ -79,7 +76,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String name = resolveName(userInfo.getName(), "뮤지션");
         String email = resolveEmail(userInfo.getEmail(), providerUserId + "@social.local");
 
-        Musician musician = new Musician(name, email);
+        Musician musician = new Musician(
+                name,
+                email,
+                null,
+                false
+        );
         musician = musicianRepository.save(musician);
 
         MusicianSocialAccount socialAccount = new MusicianSocialAccount(
@@ -93,6 +95,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         musicianSocialAccountRepository.save(socialAccount);
 
         return musician;
+    }
+
+    private void validateActive(Musician musician) {
+        if (musician.isWithdrawn()) {
+            throw new OAuth2AuthenticationException("탈퇴한 회원입니다.");
+        }
     }
 
     private AuthProvider getProvider(String registrationId) {

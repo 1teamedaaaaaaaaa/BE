@@ -30,12 +30,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @ActiveProfiles("test")
 @DataJpaTest
 @Transactional
-@Import({
-        MusicianRepositoryJpaImpl.class,
-        MusicPromotionRepositoryJpaImpl.class,
-        PromotionTrackingLinkRepositoryJpaImpl.class,
-        PromotionTrackingClickRepositoryJpaImpl.class
-})
 class RepositoryDBTest {
 
     @Autowired
