@@ -63,7 +63,7 @@ public class AuthController {
 
     @Operation(
             summary = "소셜 로그인 성공 확인",
-            description = "네이버 소셜 로그인 성공 후 프론트 또는 브라우저에서 성공 여부를 확인하기 위한 엔드포인트입니다."
+            description = "소셜 로그인 성공 후 프론트 또는 브라우저에서 성공 여부를 확인하기 위한 엔드포인트입니다."
     )
     @GetMapping("/success")
     public ResponseEntity<?> success() {

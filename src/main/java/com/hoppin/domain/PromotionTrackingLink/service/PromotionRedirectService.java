@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class PromotionRedirectService {
@@ -26,8 +28,11 @@ public class PromotionRedirectService {
             throw new IllegalArgumentException("비활성화된 홍보 추적 링크입니다.");
         }
 
+        String visitId = UUID.randomUUID().toString();
+
         PromotionTrackingClick click = new PromotionTrackingClick(
                 trackingLink,
+                visitId,
                 trackingLink.getTrackingUrl(),
                 extractClientIp(request),
                 request.getHeader("User-Agent"),
@@ -36,7 +41,7 @@ public class PromotionRedirectService {
 
         trackingClickRepository.save(click);
 
-        return trackingLink.getTargetUrl();
+        return appendVisitId(trackingLink.getTargetUrl(), visitId);
     }
 
     private String extractClientIp(HttpServletRequest request) {
@@ -51,5 +56,10 @@ public class PromotionRedirectService {
         }
 
         return request.getRemoteAddr();
+    }
+
+    private String appendVisitId(String targetUrl, String visitId) {
+        String separator = targetUrl.contains("?") ? "&" : "?";
+        return targetUrl + separator + "visitId=" + visitId;
     }
 }

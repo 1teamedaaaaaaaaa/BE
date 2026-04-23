@@ -52,7 +52,8 @@ public class InstagramMediaService {
                 media.thumbnailUrl(),
                 media.timestamp(),
                 insights.getMetricValue("shares"),
-                insights.getMetricValue("profile_visits")
+                insights.getMetricValue("profile_visits"),
+                insights.getMetricValue("reach")
         );
     }
 }

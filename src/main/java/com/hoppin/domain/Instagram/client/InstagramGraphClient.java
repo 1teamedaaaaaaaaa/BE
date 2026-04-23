@@ -35,7 +35,7 @@ public class InstagramGraphClient {
                         .scheme("https")
                         .host("graph.instagram.com")
                         .path("/v22.0/" + mediaId + "/insights")
-                        .queryParam("metric", "shares,profile_visits")
+                        .queryParam("metric", "shares,profile_visits,reach")
                         .queryParam("access_token", accessToken)
                         .build())
                 .retrieve()

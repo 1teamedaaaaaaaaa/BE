@@ -54,7 +54,13 @@ public class SecurityConfig {
                                 "/api/auth/logout",
                                 "/api/auth/success",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/api/music-promotions/**",
+                                "/api/musicians/me/instagram/media",
+                                "/instagram/oauth/callback",
+                                "/r/**",
+                                "/s/**"
+
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
