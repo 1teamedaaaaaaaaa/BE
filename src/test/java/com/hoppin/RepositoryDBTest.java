@@ -1,8 +1,12 @@
 package com.hoppin;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
+import com.hoppin.domain.MusicPromotion.infrastructure.MusicPromotionRepositoryJpaImpl;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
+import com.hoppin.domain.PromotionTrackingClick.infrastrcuture.PromotionTrackingClickRepositoryJpaImpl;
+import com.hoppin.domain.PromotionTrackingLink.infrastructure.PromotionTrackingLinkRepositoryJpaImpl;
 import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.domain.musician.infrastructure.MusicianRepositoryJpaImpl;
 import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.domain.PromotionTrackingClick.entity.PromotionTrackingClick;
 import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
@@ -13,6 +17,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -22,6 +27,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @ActiveProfiles("test")
 @DataJpaTest
 @Transactional
+@Import({
+        MusicianRepositoryJpaImpl.class,
+        MusicPromotionRepositoryJpaImpl.class,
+        PromotionTrackingLinkRepositoryJpaImpl.class,
+        PromotionTrackingClickRepositoryJpaImpl.class
+})
 class RepositoryDBTest {
 
     @Autowired
