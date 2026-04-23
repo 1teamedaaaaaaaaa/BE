@@ -1,5 +1,7 @@
 package com.hoppin.security.filter;
 
+import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.security.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final MusicianRepository musicianRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,6 +36,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtTokenProvider.validateToken(token)) {
                 Long musicianId = jwtTokenProvider.getMusicianId(token);
                 String role = jwtTokenProvider.getRole(token);
+
+                Musician musician = musicianRepository.findById(musicianId)
+                        .orElse(null);
+
+                if (musician == null || musician.isWithdrawn()) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"message\":\"탈퇴했거나 존재하지 않는 회원입니다.\"}");
+                    return;
+                }
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(

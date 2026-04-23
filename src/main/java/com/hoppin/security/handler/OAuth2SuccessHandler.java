@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -38,6 +40,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Long musicianId = ((Number) musicianIdObj).longValue();
         String role = (String) oAuth2User.getAttributes().getOrDefault("role", "USER");
+
+        System.out.println("성공핸들러 진입");
+        System.out.println("musicianId = " + musicianId);
+        System.out.println("accessToken created");
+        System.out.println("refreshToken created");
 
         String accessToken = jwtTokenProvider.createAccessToken(musicianId, role);
         String refreshToken = jwtTokenProvider.createRefreshToken(musicianId);
