@@ -69,7 +69,7 @@ public class MusicPromotionService {
         String trackingUrl = backendBase + "/r/" + trackingCode;
         String detailUrl = frontendBase + "/music-promotions/" + promotion.getId();
 
-        PromotionTrackingLink trackingLink = trackingLinkRepository.save(new PromotionTrackingLink(
+        trackingLinkRepository.save(new PromotionTrackingLink(
                 promotion,
                 PromotionChannel.INSTAGRAM,
                 trackingCode,
@@ -77,7 +77,7 @@ public class MusicPromotionService {
                 detailUrl
         ));
 
-        return CreateMusicPromotionResponse.from(promotion, trackingLink, detailUrl);
+        return CreateMusicPromotionResponse.from(trackingUrl);
     }
 
     @Transactional(readOnly = true)
