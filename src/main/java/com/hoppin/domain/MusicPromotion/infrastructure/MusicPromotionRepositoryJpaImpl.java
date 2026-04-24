@@ -2,7 +2,10 @@ package com.hoppin.domain.MusicPromotion.infrastructure;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
+import com.hoppin.domain.mypage.dto.MyPagePromotionItemResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,5 +35,27 @@ public class MusicPromotionRepositoryJpaImpl implements MusicPromotionRepository
     @Override
     public boolean existsById(Long promotionId) {
         return musicPromotionJpaRepository.existsById(promotionId);
+    }
+
+    @Override
+    public Page<MyPagePromotionItemResponse> findMyPagePromotions(
+            Long musicianId,
+            String keyword,
+            Pageable pageable
+    ) {
+        return musicPromotionJpaRepository
+                .findMyPagePromotions(musicianId, keyword, pageable)
+                .map(this::toMyPagePromotionItemResponse);
+    }
+
+    private MyPagePromotionItemResponse toMyPagePromotionItemResponse(MusicPromotion promotion) {
+        return new MyPagePromotionItemResponse(
+                promotion.getId(),
+                promotion.getSongTitle(),
+                promotion.getImageUrl(),
+                promotion.getShareCount(),
+                promotion.getProfileVisitCount(),
+                promotion.getLinkClickCount()
+        );
     }
 }

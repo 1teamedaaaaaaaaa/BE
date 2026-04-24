@@ -6,7 +6,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class MyPageTopPromotionsResponse {
+public class MyPagePromotionPageResponse {
 
     private List<MyPagePromotionItemResponse> promotions;
+
+    private int page;
+    private int size;
+    private long totalElements;
+    private int totalPages;
+    private boolean hasNext;
 }

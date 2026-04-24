@@ -7,7 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MyPagePromotionItemResponse {
 
-    private Integer rank;
     private Long promotionId;
     private String title;
     private String coverImageUrl;

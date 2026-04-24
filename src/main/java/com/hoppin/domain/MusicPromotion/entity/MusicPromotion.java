@@ -44,6 +44,11 @@ public class MusicPromotion extends BaseEntity {
     @Column(name = "short_description", nullable = false, length = 255)
     private String shortDescription;
 
+    // 임시 3세트
+    private Long linkClickCount;
+    private Long shareCount;
+    private Long profileVisitCount;
+
     public MusicPromotion(
             Musician musician,
             String activityName,
