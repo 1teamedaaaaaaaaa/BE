@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Music Promotion", description = "뮤지션 홍보 생성 및 조회 API")
@@ -26,10 +27,14 @@ public class MusicPromotionController {
     )
     @PostMapping
     public ResponseEntity<ApiResponse<CreateMusicPromotionResponse>> createMusicPromotion(
-            @RequestHeader("X-Musician-Id") Long musicianId,
+            Authentication authentication,
             @RequestBody CreateMusicPromotionRequest request
     ) {
-        CreateMusicPromotionResponse response = musicPromotionService.createMusicPromotion(musicianId, request);
+        Long musicianId = Long.parseLong(authentication.getName());
+
+        CreateMusicPromotionResponse response =
+                musicPromotionService.createMusicPromotion(musicianId, request);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(response, "음악 홍보가 생성되었습니다."));
