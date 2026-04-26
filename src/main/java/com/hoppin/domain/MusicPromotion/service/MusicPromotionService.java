@@ -32,7 +32,6 @@ public class MusicPromotionService {
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionTrackingLinkRepository trackingLinkRepository;
     private final TrackingCodeGenerator trackingCodeGenerator;
-
     private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
     private final StreamingCodeGenerator streamingCodeGenerator;
     private final StreamingDomainExtractor streamingDomainExtractor;
