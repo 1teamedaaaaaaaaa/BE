@@ -57,6 +57,10 @@ dependencies {
     //test용 메모리 db : h2
     testImplementation 'com.h2database:h2'
 
+    //S3
+    implementation platform("software.amazon.awssdk:bom:2.25.60")
+    implementation "software.amazon.awssdk:s3"
+
 
 
 }
