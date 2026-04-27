@@ -26,38 +26,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String token = resolveToken(request);
+
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+
+            Long musicianId = jwtTokenProvider.getMusicianId(token);
+            String role = jwtTokenProvider.getRole(token);
+
+            Musician musician = musicianRepository.findById(musicianId)
+                    .orElse(null);
+
+            if (musician == null || musician.isWithdrawn()) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"message\":\"탈퇴했거나 존재하지 않는 회원입니다.\"}");
+                return;
+            }
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            musicianId,
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
 
         String authorization = request.getHeader("Authorization");
 
         if (authorization != null && authorization.startsWith("Bearer ")) {
-            String token = authorization.substring(7);
+            return authorization.substring(7);
+        }
 
-            if (jwtTokenProvider.validateToken(token)) {
-                Long musicianId = jwtTokenProvider.getMusicianId(token);
-                String role = jwtTokenProvider.getRole(token);
-
-                Musician musician = musicianRepository.findById(musicianId)
-                        .orElse(null);
-
-                if (musician == null || musician.isWithdrawn()) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"message\":\"탈퇴했거나 존재하지 않는 회원입니다.\"}");
-                    return;
+        if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
                 }
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                musicianId,
-                                null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                        );
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
-        filterChain.doFilter(request, response);
+        return null;
     }
 }
