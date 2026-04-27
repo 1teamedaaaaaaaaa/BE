@@ -13,4 +13,6 @@ public interface PromotionTrackingLinkJpaRepository extends JpaRepository<Promot
     boolean existsByTrackingCode(String trackingCode);
 
     List<PromotionTrackingLink> findByPromotionId(Long promotionId);
+
+    void deleteByPromotionId(Long promotionId);
 }

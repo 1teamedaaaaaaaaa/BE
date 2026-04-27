@@ -48,6 +48,11 @@ public class MusicPromotionRepositoryJpaImpl implements MusicPromotionRepository
                 .map(this::toMyPagePromotionItemResponse);
     }
 
+    @Override
+    public void delete(MusicPromotion promotion) {
+        musicPromotionJpaRepository.delete(promotion);
+    }
+
     private MyPagePromotionItemResponse toMyPagePromotionItemResponse(MusicPromotion promotion) {
         return new MyPagePromotionItemResponse(
                 promotion.getId(),

@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
+import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
 
 import java.util.List;
 
@@ -31,8 +33,11 @@ public class MusicPromotionService {
     private final MusicianRepository musicianRepository;
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionTrackingLinkRepository trackingLinkRepository;
-    private final TrackingCodeGenerator trackingCodeGenerator;
+    private final PromotionTrackingClickRepository promotionTrackingClickRepository;
+    private final PromotionStreamingClickRepository promotionStreamingClickRepository;
     private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
+
+    private final TrackingCodeGenerator trackingCodeGenerator;
     private final StreamingCodeGenerator streamingCodeGenerator;
     private final StreamingDomainExtractor streamingDomainExtractor;
 
@@ -94,6 +99,22 @@ public class MusicPromotionService {
                 promotionStreamingLinkRepository.findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId);
 
         return MusicPromotionDetailResponse.from(promotion, trackingLink, streamingLinks);
+    }
+
+    @Transactional
+    public void deleteMusicPromotion(Long musicianId, Long promotionId) {
+        MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
+                .orElseThrow(() -> new ResourceNotFoundException("음악 홍보를 찾을 수 없습니다."));
+
+        if (!promotion.getMusician().getId().equals(musicianId)) {
+            throw new IllegalArgumentException("해당 홍보를 삭제할 권한이 없습니다.");
+        }
+
+        promotionTrackingClickRepository.deleteByPromotionId(promotionId);
+        promotionStreamingClickRepository.deleteByPromotionId(promotionId);
+        trackingLinkRepository.deleteByPromotionId(promotionId);
+        promotionStreamingLinkRepository.deleteByPromotionId(promotionId);
+        musicPromotionRepository.delete(promotion);
     }
 
 
