@@ -3,6 +3,7 @@ package com.hoppin.domain.MusicPromotion.controller;
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionResponse;
 import com.hoppin.domain.MusicPromotion.dto.MusicPromotionDetailResponse;
+import com.hoppin.domain.MusicPromotion.dto.UpdateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.service.MusicPromotionService;
 import com.hoppin.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,12 +54,34 @@ public class MusicPromotionController {
     }
 
     @Operation(
+            summary = "뮤지션 홍보 수정",
+            description = """
+                      promotionId에 해당하는 홍보를 수정합니다.
+                      홍보 기본 정보와 스트리밍 링크 목록을 함께 수정할 수 있습니다.
+                      기존 스트리밍 링크는 streamingCode 기준으로 수정되며, 새 링크는 새 streamingCode가 발급됩니다.
+                      요청에서 빠진 기존 스트리밍 링크는 삭제됩니다.
+                      """
+    )
+    @PutMapping("/{promotionId}")
+    public ResponseEntity<ApiResponse<Void>> updateMusicPromotion(
+            Authentication authentication,
+            @PathVariable Long promotionId,
+            @RequestBody UpdateMusicPromotionRequest request
+    ) {
+        Long musicianId = Long.parseLong(authentication.getName());
+
+        musicPromotionService.updateMusicPromotion(musicianId, promotionId, request);
+
+        return ResponseEntity.ok(ApiResponse.success(null, "음악 홍보가 수정되었습니다."));
+    }
+
+    @Operation(
             summary = "뮤지션 홍보 삭제",
             description = """
-                  promotionId에 해당하는 홍보를 삭제합니다.
-                  삭제 시 해당 홍보와 연결된 스트리밍 링크, 추적 링크, 클릭 로그 등 연관 데이터도 함께 삭제됩니다.
-                  본인이 생성한 홍보만 삭제할 수 있습니다.
-                  """
+                    promotionId에 해당하는 홍보를 삭제합니다.
+                    삭제 시 해당 홍보와 연결된 스트리밍 링크, 추적 링크, 클릭 로그 등 연관 데이터도 함께 삭제됩니다.
+                    본인이 생성한 홍보만 삭제할 수 있습니다.
+                    """
     )
     @DeleteMapping("/{promotionId}")
     public ResponseEntity<ApiResponse<Void>> deleteMusicPromotion(
@@ -69,3 +92,4 @@ public class MusicPromotionController {
         return ResponseEntity.ok(ApiResponse.success(null, "음악 홍보가 삭제되었습니다."));
     }
 }
+
