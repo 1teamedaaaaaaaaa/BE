@@ -14,4 +14,6 @@ public interface PromotionStreamingLinkRepository {
     Optional<PromotionStreamingLink> findByStreamingCode(String streamingCode);
 
     List<PromotionStreamingLink> findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(Long promotionId);
+
+    void deleteByPromotionId(Long promotionId);
 }

@@ -34,4 +34,9 @@ public class PromotionStreamingLinkRepositoryJpaImpl implements PromotionStreami
         return promotionStreamingLinkJpaRepository
                 .findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId);
     }
+
+    @Override
+    public void deleteByPromotionId(Long promotionId) {
+        promotionStreamingLinkJpaRepository.deleteByPromotionId(promotionId);
+    }
 }

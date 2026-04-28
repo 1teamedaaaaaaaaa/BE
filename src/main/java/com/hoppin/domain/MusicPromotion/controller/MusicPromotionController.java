@@ -51,4 +51,21 @@ public class MusicPromotionController {
         MusicPromotionDetailResponse response = musicPromotionService.getMusicPromotion(promotionId);
         return ResponseEntity.ok(ApiResponse.success(response, "음악 홍보를 조회했습니다."));
     }
+
+    @Operation(
+            summary = "뮤지션 홍보 삭제",
+            description = """
+                  promotionId에 해당하는 홍보를 삭제합니다.
+                  삭제 시 해당 홍보와 연결된 스트리밍 링크, 추적 링크, 클릭 로그 등 연관 데이터도 함께 삭제됩니다.
+                  본인이 생성한 홍보만 삭제할 수 있습니다.
+                  """
+    )
+    @DeleteMapping("/{promotionId}")
+    public ResponseEntity<ApiResponse<Void>> deleteMusicPromotion(
+            @RequestHeader("X-Musician-Id") Long musicianId,
+            @PathVariable Long promotionId
+    ) {
+        musicPromotionService.deleteMusicPromotion(musicianId, promotionId);
+        return ResponseEntity.ok(ApiResponse.success(null, "음악 홍보가 삭제되었습니다."));
+    }
 }

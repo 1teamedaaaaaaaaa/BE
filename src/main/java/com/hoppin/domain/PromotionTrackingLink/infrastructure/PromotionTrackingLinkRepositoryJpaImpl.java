@@ -38,4 +38,9 @@ public class PromotionTrackingLinkRepositoryJpaImpl implements PromotionTracking
     public List<PromotionTrackingLink> findByPromotionId(Long promotionId) {
         return trackingLinkJpaRepository.findByPromotionId(promotionId);
     }
+
+    @Override
+    public void deleteByPromotionId(Long promotionId) {
+        trackingLinkJpaRepository.deleteByPromotionId(promotionId);
+    }
 }

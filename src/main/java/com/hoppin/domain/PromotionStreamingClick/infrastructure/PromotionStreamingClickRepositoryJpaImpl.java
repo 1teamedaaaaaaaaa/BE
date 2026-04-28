@@ -15,4 +15,9 @@ public class PromotionStreamingClickRepositoryJpaImpl implements PromotionStream
     public PromotionStreamingClick save(PromotionStreamingClick streamingClick) {
         return promotionStreamingClickJpaRepository.save(streamingClick);
     }
+
+    @Override
+    public void deleteByPromotionId(Long promotionId) {
+        promotionStreamingClickJpaRepository.deleteByPromotionId(promotionId);
+    }
 }
