@@ -93,7 +93,9 @@ public class InstagramOAuthService {
                 .orElseGet(() -> musicianRepository.save(
                         new Musician(
                                 instagramUsername,
-                                email
+                                email,
+                                null,
+                                false
                         )
                 ));
 

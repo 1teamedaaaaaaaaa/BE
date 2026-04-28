@@ -85,9 +85,11 @@ public class MusicPromotionController {
     )
     @DeleteMapping("/{promotionId}")
     public ResponseEntity<ApiResponse<Void>> deleteMusicPromotion(
-            @RequestHeader("X-Musician-Id") Long musicianId,
+            Authentication authentication,
             @PathVariable Long promotionId
     ) {
+        Long musicianId = Long.parseLong(authentication.getName());
+
         musicPromotionService.deleteMusicPromotion(musicianId, promotionId);
         return ResponseEntity.ok(ApiResponse.success(null, "음악 홍보가 삭제되었습니다."));
     }

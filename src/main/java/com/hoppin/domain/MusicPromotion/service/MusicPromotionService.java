@@ -86,7 +86,7 @@ public class MusicPromotionService {
                 detailUrl
         ));
 
-        return CreateMusicPromotionResponse.from(trackingUrl);
+        return CreateMusicPromotionResponse.from(trackingUrl, promotion.getId());
     }
 
     @Transactional(readOnly = true)
