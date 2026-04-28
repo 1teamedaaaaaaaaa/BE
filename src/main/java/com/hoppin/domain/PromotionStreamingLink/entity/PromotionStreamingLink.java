@@ -66,6 +66,17 @@ public class PromotionStreamingLink {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void update(
+            String originalUrl,
+            String domain,
+            int displayOrder
+    ) {
+        this.originalUrl = originalUrl;
+        this.domain = domain;
+        this.displayOrder = displayOrder;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public void deactivate() {
         this.active = false;
         this.updatedAt = LocalDateTime.now();

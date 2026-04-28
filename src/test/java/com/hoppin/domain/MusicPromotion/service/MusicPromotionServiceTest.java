@@ -2,6 +2,7 @@ package com.hoppin.domain.MusicPromotion.service;
 
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionResponse;
+import com.hoppin.domain.MusicPromotion.dto.UpdateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
 import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
@@ -33,12 +34,12 @@ class MusicPromotionServiceTest {
     private final MusicianRepository musicianRepository = mock(MusicianRepository.class);
     private final MusicPromotionRepository musicPromotionRepository = mock(MusicPromotionRepository.class);
     private final PromotionTrackingLinkRepository trackingLinkRepository = mock(PromotionTrackingLinkRepository.class);
-    private final TrackingCodeGenerator trackingCodeGenerator = mock(TrackingCodeGenerator.class);
-    private final PromotionStreamingLinkRepository promotionStreamingLinkRepository = mock(PromotionStreamingLinkRepository.class);
-    private final StreamingCodeGenerator streamingCodeGenerator = mock(StreamingCodeGenerator.class);
-    private final StreamingDomainExtractor streamingDomainExtractor = mock(StreamingDomainExtractor.class);
     private final PromotionTrackingClickRepository promotionTrackingClickRepository = mock(PromotionTrackingClickRepository.class);
     private final PromotionStreamingClickRepository promotionStreamingClickRepository = mock(PromotionStreamingClickRepository.class);
+    private final PromotionStreamingLinkRepository promotionStreamingLinkRepository = mock(PromotionStreamingLinkRepository.class);
+    private final TrackingCodeGenerator trackingCodeGenerator = mock(TrackingCodeGenerator.class);
+    private final StreamingCodeGenerator streamingCodeGenerator = mock(StreamingCodeGenerator.class);
+    private final StreamingDomainExtractor streamingDomainExtractor = mock(StreamingDomainExtractor.class);
 
     private final MusicPromotionService musicPromotionService =
             new MusicPromotionService(
@@ -82,9 +83,7 @@ class MusicPromotionServiceTest {
                     return promotion;
                 });
 
-        when(trackingLinkRepository.existsByTrackingCode(anyString()))
-                .thenReturn(false);
-
+        when(trackingLinkRepository.existsByTrackingCode(anyString())).thenReturn(false);
         when(trackingCodeGenerator.generate()).thenReturn("TRACK123");
         when(streamingCodeGenerator.generate()).thenReturn("STREAM1", "STREAM2");
         when(streamingDomainExtractor.extract("https://open.spotify.com/track/test")).thenReturn("spotify");
@@ -99,9 +98,7 @@ class MusicPromotionServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/TRACK123");
 
-        ArgumentCaptor<MusicPromotion> promotionCaptor =
-                ArgumentCaptor.forClass(MusicPromotion.class);
-
+        ArgumentCaptor<MusicPromotion> promotionCaptor = ArgumentCaptor.forClass(MusicPromotion.class);
         verify(musicPromotionRepository).save(promotionCaptor.capture());
 
         MusicPromotion savedPromotion = promotionCaptor.getValue();
@@ -133,8 +130,7 @@ class MusicPromotionServiceTest {
                 "첫 싱글 발매 홍보입니다."
         );
 
-        when(musicianRepository.findById(musicianId))
-                .thenReturn(Optional.empty());
+        when(musicianRepository.findById(musicianId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
                 musicPromotionService.createMusicPromotion(musicianId, request)
@@ -221,6 +217,153 @@ class MusicPromotionServiceTest {
     }
 
     @Test
+    @DisplayName("홍보 수정 시 기본 정보와 스트리밍 링크를 함께 갱신한다")
+    void updateMusicPromotion_success() {
+        Long musicianId = 1L;
+        Long promotionId = 10L;
+
+        Musician musician = new Musician("tester", "tester@example.com");
+        ReflectionTestUtils.setField(musician, "id", musicianId);
+
+        MusicPromotion promotion = new MusicPromotion(
+                musician,
+                "기존 활동명",
+                "@old_account",
+                "Old Song",
+                LocalDate.of(2026, 4, 20),
+                "https://example.com/old.jpg",
+                "기존 설명"
+        );
+        ReflectionTestUtils.setField(promotion, "id", promotionId);
+
+        PromotionStreamingLink existingLink1 = new PromotionStreamingLink(
+                promotion,
+                "STREAM1",
+                "https://open.spotify.com/track/old1",
+                "spotify",
+                "http://localhost:8080/s/STREAM1",
+                1
+        );
+        ReflectionTestUtils.setField(existingLink1, "id", 101L);
+
+        PromotionStreamingLink existingLink2 = new PromotionStreamingLink(
+                promotion,
+                "STREAM2",
+                "https://music.youtube.com/watch?v=old2",
+                "youtube",
+                "http://localhost:8080/s/STREAM2",
+                2
+        );
+        ReflectionTestUtils.setField(existingLink2, "id", 102L);
+
+        UpdateMusicPromotionRequest request = new UpdateMusicPromotionRequest(
+                "수정된 활동명",
+                "@new_account",
+                "New Song",
+                LocalDate.of(2026, 4, 27),
+                List.of(
+                        new UpdateMusicPromotionRequest.StreamingLinkRequest(
+                                "STREAM1",
+                                "https://open.spotify.com/track/new1"
+                        ),
+                        new UpdateMusicPromotionRequest.StreamingLinkRequest(
+                                null,
+                                "https://music.apple.com/kr/song/new-link"
+                        )
+                ),
+                "https://example.com/new.jpg",
+                "수정된 설명"
+        );
+
+        when(musicPromotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
+        when(promotionStreamingLinkRepository.findByPromotionId(promotionId))
+                .thenReturn(List.of(existingLink1, existingLink2));
+        when(streamingDomainExtractor.extract("https://open.spotify.com/track/new1")).thenReturn("spotify");
+        when(streamingDomainExtractor.extract("https://music.apple.com/kr/song/new-link")).thenReturn("applemusic");
+        when(streamingCodeGenerator.generate()).thenReturn("STREAM3");
+
+        ReflectionTestUtils.setField(musicPromotionService, "backendBaseUrl", "http://localhost:8080");
+
+        musicPromotionService.updateMusicPromotion(musicianId, promotionId, request);
+
+        assertThat(promotion.getActivityName()).isEqualTo("수정된 활동명");
+        assertThat(promotion.getInstagramAccount()).isEqualTo("@new_account");
+        assertThat(promotion.getSongTitle()).isEqualTo("New Song");
+        assertThat(promotion.getReleaseDate()).isEqualTo(LocalDate.of(2026, 4, 27));
+        assertThat(promotion.getImageUrl()).isEqualTo("https://example.com/new.jpg");
+        assertThat(promotion.getShortDescription()).isEqualTo("수정된 설명");
+
+        assertThat(existingLink1.getOriginalUrl()).isEqualTo("https://open.spotify.com/track/new1");
+        assertThat(existingLink1.getDomain()).isEqualTo("spotify");
+        assertThat(existingLink1.getDisplayOrder()).isEqualTo(1);
+
+        verify(promotionStreamingLinkRepository).save(any(PromotionStreamingLink.class));
+        verify(promotionStreamingClickRepository).deleteByStreamingLinkId(102L);
+        verify(promotionStreamingLinkRepository).delete(existingLink2);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 홍보를 수정하면 실패한다")
+    void updateMusicPromotion_notFound_fail() {
+        Long musicianId = 1L;
+        Long promotionId = 999L;
+
+        UpdateMusicPromotionRequest request = new UpdateMusicPromotionRequest(
+                "수정된 활동명",
+                "@new_account",
+                "New Song",
+                LocalDate.of(2026, 4, 27),
+                List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
+                "https://example.com/new.jpg",
+                "수정된 설명"
+        );
+
+        when(musicPromotionRepository.findById(promotionId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> musicPromotionService.updateMusicPromotion(musicianId, promotionId, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("음악 홍보를 찾을 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("다른 뮤지션의 홍보를 수정하려고 하면 실패한다")
+    void updateMusicPromotion_forbidden_fail() {
+        Long requestMusicianId = 1L;
+        Long ownerMusicianId = 2L;
+        Long promotionId = 10L;
+
+        Musician musician = new Musician("owner", "owner@example.com");
+        ReflectionTestUtils.setField(musician, "id", ownerMusicianId);
+
+        MusicPromotion promotion = new MusicPromotion(
+                musician,
+                "기존 활동명",
+                "@old_account",
+                "Old Song",
+                LocalDate.of(2026, 4, 20),
+                "https://example.com/old.jpg",
+                "기존 설명"
+        );
+        ReflectionTestUtils.setField(promotion, "id", promotionId);
+
+        UpdateMusicPromotionRequest request = new UpdateMusicPromotionRequest(
+                "수정된 활동명",
+                "@new_account",
+                "New Song",
+                LocalDate.of(2026, 4, 27),
+                List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
+                "https://example.com/new.jpg",
+                "수정된 설명"
+        );
+
+        when(musicPromotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
+
+        assertThatThrownBy(() -> musicPromotionService.updateMusicPromotion(requestMusicianId, promotionId, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("해당 홍보를 수정 또는 삭제할 권한이 없습니다.");
+    }
+
+    @Test
     @DisplayName("본인 홍보를 삭제하면 관련 하위 데이터도 모두 삭제한다")
     void deleteMusicPromotion_success() {
         Long musicianId = 1L;
@@ -295,7 +438,7 @@ class MusicPromotionServiceTest {
 
         assertThatThrownBy(() -> musicPromotionService.deleteMusicPromotion(requestMusicianId, promotionId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("해당 홍보를 삭제할 권한이 없습니다.");
+                .hasMessageContaining("해당 홍보를 수정 또는 삭제할 권한이 없습니다.");
 
         verify(promotionTrackingClickRepository, never()).deleteByPromotionId(anyLong());
         verify(promotionStreamingClickRepository, never()).deleteByPromotionId(anyLong());

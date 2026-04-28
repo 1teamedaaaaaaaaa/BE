@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PromotionStreamingClickJpaRepository extends JpaRepository<PromotionStreamingClick, Long> {
 
     void deleteByPromotionId(Long promotionId);
+
+    void deleteByStreamingLinkId(Long streamingLinkId);
 }
