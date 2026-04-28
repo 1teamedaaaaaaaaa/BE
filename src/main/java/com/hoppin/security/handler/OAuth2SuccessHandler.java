@@ -53,6 +53,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
+                .domain(".musicpeak.site")
                 .path("/")
                 .maxAge(Duration.ofMinutes(30))
                 .build();
@@ -61,6 +62,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
+                .domain(".musicpeak.site")
                 .path("/")
                 .maxAge(Duration.ofDays(14))
                 .build();
@@ -68,6 +70,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        getRedirectStrategy().sendRedirect(request, response, frontendBaseUrl + "/api/auth/success");
+        getRedirectStrategy().sendRedirect(request, response, frontendBaseUrl + "/auth/success");
     }
 }

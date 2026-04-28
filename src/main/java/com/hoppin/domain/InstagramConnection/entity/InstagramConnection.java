@@ -68,4 +68,19 @@ public class InstagramConnection extends BaseEntity {
         this.accessToken = accessToken;
         this.tokenExpiresAt = tokenExpiresAt;
     }
+
+    public void reconnect(
+            Musician musician,
+            String instagramAccountId,
+            String instagramUsername,
+            String accessToken,
+            LocalDateTime tokenExpiresAt
+    ) {
+        this.musician = musician;
+        this.instagramAccountId = instagramAccountId;
+        this.instagramUsername = instagramUsername;
+        this.accessToken = accessToken;
+        this.tokenExpiresAt = tokenExpiresAt;
+        this.connectedAt = LocalDateTime.now();
+    }
 }
