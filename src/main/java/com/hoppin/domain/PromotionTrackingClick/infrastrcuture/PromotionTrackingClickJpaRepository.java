@@ -8,4 +8,6 @@ public interface PromotionTrackingClickJpaRepository extends JpaRepository<Promo
     long countByPromotionId(Long promotionId);
 
     long countByTrackingLinkId(Long trackingLinkId);
+
+    void deleteByPromotionId(Long promotionId);
 }

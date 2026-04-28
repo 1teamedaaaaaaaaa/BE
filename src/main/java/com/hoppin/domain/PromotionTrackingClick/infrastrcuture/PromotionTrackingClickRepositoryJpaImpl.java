@@ -25,4 +25,9 @@ public class PromotionTrackingClickRepositoryJpaImpl implements PromotionTrackin
     public long countByTrackingLinkId(Long trackingLinkId) {
         return trackingClickJpaRepository.countByTrackingLinkId(trackingLinkId);
     }
+
+    @Override
+    public void deleteByPromotionId(Long promotionId) {
+        trackingClickJpaRepository.deleteByPromotionId(promotionId);
+    }
 }

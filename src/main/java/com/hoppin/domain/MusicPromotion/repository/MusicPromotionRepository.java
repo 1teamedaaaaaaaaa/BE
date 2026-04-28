@@ -14,6 +14,8 @@ public interface MusicPromotionRepository {
 
     Optional<MusicPromotion> findById(Long promotionId);
 
+    void delete(MusicPromotion promotion);
+
     List<MusicPromotion> findByMusicianId(Long musicianId);
 
     boolean existsById(Long promotionId);

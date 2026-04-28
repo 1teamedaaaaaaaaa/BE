@@ -30,8 +30,23 @@ public class PromotionStreamingLinkRepositoryJpaImpl implements PromotionStreami
     }
 
     @Override
+    public List<PromotionStreamingLink> findByPromotionId(Long promotionId) {
+        return promotionStreamingLinkJpaRepository.findByPromotionId(promotionId);
+    }
+
+    @Override
     public List<PromotionStreamingLink> findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(Long promotionId) {
         return promotionStreamingLinkJpaRepository
                 .findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId);
+    }
+
+    @Override
+    public void deleteByPromotionId(Long promotionId) {
+        promotionStreamingLinkJpaRepository.deleteByPromotionId(promotionId);
+    }
+
+    @Override
+    public void delete(PromotionStreamingLink streamingLink) {
+        promotionStreamingLinkJpaRepository.delete(streamingLink);
     }
 }

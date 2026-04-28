@@ -10,5 +10,9 @@ public interface PromotionStreamingLinkJpaRepository extends JpaRepository<Promo
 
     Optional<PromotionStreamingLink> findByStreamingCode(String streamingCode);
 
+    List<PromotionStreamingLink> findByPromotionId(Long promotionId);
+
     List<PromotionStreamingLink> findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(Long promotionId);
+
+    void deleteByPromotionId(Long promotionId);
 }

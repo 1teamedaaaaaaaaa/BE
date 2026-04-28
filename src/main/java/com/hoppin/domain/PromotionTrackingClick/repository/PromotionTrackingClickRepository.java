@@ -9,4 +9,6 @@ public interface PromotionTrackingClickRepository {
     long countByPromotionId(Long promotionId);
 
     long countByTrackingLinkId(Long trackingLinkId);
+
+    void deleteByPromotionId(Long promotionId);
 }

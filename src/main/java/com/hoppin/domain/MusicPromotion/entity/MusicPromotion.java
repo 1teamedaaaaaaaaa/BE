@@ -2,14 +2,12 @@ package com.hoppin.domain.MusicPromotion.entity;
 
 import com.hoppin.domain.common.entity.BaseEntity;
 import com.hoppin.domain.musician.entity.Musician;
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -59,6 +57,22 @@ public class MusicPromotion extends BaseEntity {
             String shortDescription
     ) {
         this.musician = musician;
+        this.activityName = activityName;
+        this.instagramAccount = instagramAccount;
+        this.songTitle = songTitle;
+        this.releaseDate = releaseDate;
+        this.imageUrl = imageUrl;
+        this.shortDescription = shortDescription;
+    }
+
+    public void update(
+            String activityName,
+            String instagramAccount,
+            String songTitle,
+            LocalDate releaseDate,
+            String imageUrl,
+            String shortDescription
+    ) {
         this.activityName = activityName;
         this.instagramAccount = instagramAccount;
         this.songTitle = songTitle;
