@@ -88,6 +88,7 @@ public class MusicPromotionController {
             Authentication authentication,
             @PathVariable Long promotionId
     ) {
+
         Long musicianId = Long.parseLong(authentication.getName());
 
         musicPromotionService.deleteMusicPromotion(musicianId, promotionId);
