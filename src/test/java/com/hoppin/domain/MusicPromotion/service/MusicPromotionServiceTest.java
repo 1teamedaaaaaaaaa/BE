@@ -66,7 +66,6 @@ class MusicPromotionServiceTest {
 
         CreateMusicPromotionRequest request = new CreateMusicPromotionRequest(
                 "첫 싱글 발매 프로모션",
-                "@hoppin_artist",
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 List.of(
@@ -122,7 +121,6 @@ class MusicPromotionServiceTest {
 
         CreateMusicPromotionRequest request = new CreateMusicPromotionRequest(
                 "첫 싱글 발매 프로모션",
-                "@hoppin_artist",
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 List.of(
@@ -153,7 +151,6 @@ class MusicPromotionServiceTest {
         MusicPromotion promotion = new MusicPromotion(
                 musician,
                 "첫 싱글 발매 프로모션",
-                "@hoppin_artist",
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 "https://hoppin-s3-bucket.s3.ap-northeast-2.amazonaws.com/music-promotions/test.jpg",
@@ -229,7 +226,6 @@ class MusicPromotionServiceTest {
         MusicPromotion promotion = new MusicPromotion(
                 musician,
                 "기존 활동명",
-                "@old_account",
                 "Old Song",
                 LocalDate.of(2026, 4, 20),
                 "https://example.com/old.jpg",
@@ -259,7 +255,6 @@ class MusicPromotionServiceTest {
 
         UpdateMusicPromotionRequest request = new UpdateMusicPromotionRequest(
                 "수정된 활동명",
-                "@new_account",
                 "New Song",
                 LocalDate.of(2026, 4, 27),
                 List.of(
@@ -310,7 +305,6 @@ class MusicPromotionServiceTest {
 
         UpdateMusicPromotionRequest request = new UpdateMusicPromotionRequest(
                 "수정된 활동명",
-                "@new_account",
                 "New Song",
                 LocalDate.of(2026, 4, 27),
                 List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
@@ -338,7 +332,6 @@ class MusicPromotionServiceTest {
         MusicPromotion promotion = new MusicPromotion(
                 musician,
                 "기존 활동명",
-                "@old_account",
                 "Old Song",
                 LocalDate.of(2026, 4, 20),
                 "https://example.com/old.jpg",
@@ -348,7 +341,6 @@ class MusicPromotionServiceTest {
 
         UpdateMusicPromotionRequest request = new UpdateMusicPromotionRequest(
                 "수정된 활동명",
-                "@new_account",
                 "New Song",
                 LocalDate.of(2026, 4, 27),
                 List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
@@ -375,7 +367,6 @@ class MusicPromotionServiceTest {
         MusicPromotion promotion = new MusicPromotion(
                 musician,
                 "첫 싱글 발매 프로모션",
-                "@hoppin_artist",
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 "https://hoppin-s3-bucket.s3.ap-northeast-2.amazonaws.com/music-promotions/test.jpg",
@@ -428,7 +419,6 @@ class MusicPromotionServiceTest {
         MusicPromotion promotion = new MusicPromotion(
                 musician,
                 "첫 싱글 발매 프로모션",
-                "@hoppin_artist",
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 "https://hoppin-s3-bucket.s3.ap-northeast-2.amazonaws.com/music-promotions/test.jpg",
