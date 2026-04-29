@@ -11,11 +11,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +101,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private void validateActive(Musician musician) {
         if (musician.isWithdrawn()) {
-            throw new OAuth2AuthenticationException("탈퇴한 회원입니다.");
+            String withdrawnAt = musician.getWithdrawnAt()
+                    .format(DateTimeFormatter.ofPattern("yy.MM.dd"));
+
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error(
+                            "withdrawn",
+                            withdrawnAt,
+                            null
+                    )
+            );
         }
     }
 

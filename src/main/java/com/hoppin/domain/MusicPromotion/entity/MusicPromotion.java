@@ -27,9 +27,6 @@ public class MusicPromotion extends BaseEntity {
     @Column(name = "activity_name", nullable = false, length = 100)
     private String activityName;
 
-    @Column(name = "instagram_account", nullable = false, length = 100)
-    private String instagramAccount;
-
     @Column(name = "song_title", nullable = false, length = 100)
     private String songTitle;
 
@@ -50,7 +47,6 @@ public class MusicPromotion extends BaseEntity {
     public MusicPromotion(
             Musician musician,
             String activityName,
-            String instagramAccount,
             String songTitle,
             LocalDate releaseDate,
             String imageUrl,
@@ -58,7 +54,6 @@ public class MusicPromotion extends BaseEntity {
     ) {
         this.musician = musician;
         this.activityName = activityName;
-        this.instagramAccount = instagramAccount;
         this.songTitle = songTitle;
         this.releaseDate = releaseDate;
         this.imageUrl = imageUrl;
@@ -67,14 +62,12 @@ public class MusicPromotion extends BaseEntity {
 
     public void update(
             String activityName,
-            String instagramAccount,
             String songTitle,
             LocalDate releaseDate,
             String imageUrl,
             String shortDescription
     ) {
         this.activityName = activityName;
-        this.instagramAccount = instagramAccount;
         this.songTitle = songTitle;
         this.releaseDate = releaseDate;
         this.imageUrl = imageUrl;

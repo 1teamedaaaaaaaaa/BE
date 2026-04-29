@@ -22,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
+import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
+import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +44,7 @@ public class MusicPromotionService {
     private final PromotionTrackingClickRepository promotionTrackingClickRepository;
     private final PromotionStreamingClickRepository promotionStreamingClickRepository;
     private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
+    private final PromotionDiagnosisRepository promotionDiagnosisRepository;
 
     private final TrackingCodeGenerator trackingCodeGenerator;
     private final StreamingCodeGenerator streamingCodeGenerator;
@@ -62,7 +66,6 @@ public class MusicPromotionService {
         MusicPromotion promotion = musicPromotionRepository.save(new MusicPromotion(
                 musician,
                 request.activityName(),
-                request.instagramAccount(),
                 request.songTitle(),
                 request.releaseDate(),
                 request.imageUrl(),
@@ -117,7 +120,6 @@ public class MusicPromotionService {
 
         promotion.update(
                 request.activityName(),
-                request.instagramAccount(),
                 request.songTitle(),
                 request.releaseDate(),
                 request.imageUrl(),
@@ -138,6 +140,7 @@ public class MusicPromotionService {
         promotionStreamingClickRepository.deleteByPromotionId(promotionId);
         trackingLinkRepository.deleteByPromotionId(promotionId);
         promotionStreamingLinkRepository.deleteByPromotionId(promotionId);
+        promotionDiagnosisRepository.deleteByMusicPromotion_Id(promotionId);
         musicPromotionRepository.delete(promotion);
     }
 
@@ -246,7 +249,6 @@ public class MusicPromotionService {
             throw new IllegalArgumentException("요청 본문은 필수입니다.");
         }
         requireText(request.activityName(), "활동명은 필수입니다.");
-        requireText(request.instagramAccount(), "인스타그램 계정은 필수입니다.");
         requireText(request.songTitle(), "곡명은 필수입니다.");
         if (request.releaseDate() == null) {
             throw new IllegalArgumentException("발매일은 필수입니다.");
@@ -268,7 +270,6 @@ public class MusicPromotionService {
             throw new IllegalArgumentException("요청 본문은 필수입니다.");
         }
         requireText(request.activityName(), "활동명은 필수입니다.");
-        requireText(request.instagramAccount(), "인스타그램 계정은 필수입니다.");
         requireText(request.songTitle(), "곡명은 필수입니다.");
         if (request.releaseDate() == null) {
             throw new IllegalArgumentException("발매일은 필수입니다.");
