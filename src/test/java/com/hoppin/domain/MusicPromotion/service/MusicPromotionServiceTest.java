@@ -41,8 +41,6 @@ class MusicPromotionServiceTest {
     private final TrackingCodeGenerator trackingCodeGenerator = mock(TrackingCodeGenerator.class);
     private final StreamingCodeGenerator streamingCodeGenerator = mock(StreamingCodeGenerator.class);
     private final StreamingDomainExtractor streamingDomainExtractor = mock(StreamingDomainExtractor.class);
-    private final PromotionTrackingClickRepository promotionTrackingClickRepository = mock(PromotionTrackingClickRepository.class);
-    private final PromotionStreamingClickRepository promotionStreamingClickRepository = mock(PromotionStreamingClickRepository.class);
     private final PromotionDiagnosisRepository promotionDiagnosisRepository = mock(PromotionDiagnosisRepository.class);
 
     private final MusicPromotionService musicPromotionService =
