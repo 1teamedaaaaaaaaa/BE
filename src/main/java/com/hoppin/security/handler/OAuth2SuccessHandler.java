@@ -53,6 +53,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
+                .domain(".musicpeak.site")
                 .path("/")
                 .maxAge(Duration.ofMinutes(30))
                 .build();
