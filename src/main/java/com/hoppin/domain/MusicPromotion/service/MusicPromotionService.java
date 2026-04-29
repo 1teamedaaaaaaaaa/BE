@@ -66,7 +66,6 @@ public class MusicPromotionService {
         MusicPromotion promotion = musicPromotionRepository.save(new MusicPromotion(
                 musician,
                 request.activityName(),
-                request.instagramAccount(),
                 request.songTitle(),
                 request.releaseDate(),
                 request.imageUrl(),
@@ -121,7 +120,6 @@ public class MusicPromotionService {
 
         promotion.update(
                 request.activityName(),
-                request.instagramAccount(),
                 request.songTitle(),
                 request.releaseDate(),
                 request.imageUrl(),
@@ -251,7 +249,6 @@ public class MusicPromotionService {
             throw new IllegalArgumentException("요청 본문은 필수입니다.");
         }
         requireText(request.activityName(), "활동명은 필수입니다.");
-        requireText(request.instagramAccount(), "인스타그램 계정은 필수입니다.");
         requireText(request.songTitle(), "곡명은 필수입니다.");
         if (request.releaseDate() == null) {
             throw new IllegalArgumentException("발매일은 필수입니다.");
@@ -273,7 +270,6 @@ public class MusicPromotionService {
             throw new IllegalArgumentException("요청 본문은 필수입니다.");
         }
         requireText(request.activityName(), "활동명은 필수입니다.");
-        requireText(request.instagramAccount(), "인스타그램 계정은 필수입니다.");
         requireText(request.songTitle(), "곡명은 필수입니다.");
         if (request.releaseDate() == null) {
             throw new IllegalArgumentException("발매일은 필수입니다.");
