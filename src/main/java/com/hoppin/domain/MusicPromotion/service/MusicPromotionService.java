@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
 import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
+import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class MusicPromotionService {
     private final PromotionTrackingClickRepository promotionTrackingClickRepository;
     private final PromotionStreamingClickRepository promotionStreamingClickRepository;
     private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
+    private final PromotionDiagnosisRepository promotionDiagnosisRepository;
 
     private final TrackingCodeGenerator trackingCodeGenerator;
     private final StreamingCodeGenerator streamingCodeGenerator;
@@ -114,6 +116,7 @@ public class MusicPromotionService {
         promotionStreamingClickRepository.deleteByPromotionId(promotionId);
         trackingLinkRepository.deleteByPromotionId(promotionId);
         promotionStreamingLinkRepository.deleteByPromotionId(promotionId);
+        promotionDiagnosisRepository.deleteByMusicPromotion_Id(promotionId);
         musicPromotionRepository.delete(promotion);
     }
 
