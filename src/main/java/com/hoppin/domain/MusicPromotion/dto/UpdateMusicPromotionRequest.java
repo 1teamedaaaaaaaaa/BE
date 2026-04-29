@@ -5,7 +5,6 @@ import java.util.List;
 
 public record UpdateMusicPromotionRequest(
         String activityName,
-        String instagramAccount,
         String songTitle,
         LocalDate releaseDate,
         List<StreamingLinkRequest> streamingLinks,

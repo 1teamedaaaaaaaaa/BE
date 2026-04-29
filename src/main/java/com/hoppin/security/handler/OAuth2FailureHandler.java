@@ -4,7 +4,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,15 +31,25 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         log.error("exception class = {}", exception.getClass().getName());
         log.error("exception message = {}", exception.getMessage(), exception);
 
+        String redirectUrl = frontendBaseUrl + "/login?error=login_failed";
+
         if (exception instanceof OAuth2AuthenticationException oauth2Exception) {
-            log.error("oauth2 error code = {}", oauth2Exception.getError().getErrorCode());
-            log.error("oauth2 error description = {}", oauth2Exception.getError().getDescription());
+            String errorCode = oauth2Exception.getError().getErrorCode();
+            String errorDescription = oauth2Exception.getError().getDescription();
+
+            log.error("oauth2 error code = {}", errorCode);
+            log.error("oauth2 error description = {}", errorDescription);
+
+            if ("withdrawn".equals(errorCode)) {
+                String withdrawnAt = errorDescription == null ? "" : errorDescription;
+
+                redirectUrl = frontendBaseUrl
+                        + "/login?error=withdrawn"
+                        + "&withdrawnAt="
+                        + URLEncoder.encode(withdrawnAt, StandardCharsets.UTF_8);
+            }
         }
 
-        getRedirectStrategy().sendRedirect(
-                request,
-                response,
-                frontendBaseUrl + "/login?error"
-        );
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
