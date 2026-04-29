@@ -3,17 +3,20 @@ package com.hoppin.domain.MusicPromotion.service;
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionResponse;
 import com.hoppin.domain.MusicPromotion.dto.MusicPromotionDetailResponse;
+import com.hoppin.domain.MusicPromotion.dto.UpdateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
+import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
 import com.hoppin.domain.PromotionStreamingLink.entity.PromotionStreamingLink;
 import com.hoppin.domain.PromotionStreamingLink.helper.StreamingCodeGenerator;
 import com.hoppin.domain.PromotionStreamingLink.helper.StreamingDomainExtractor;
 import com.hoppin.domain.PromotionStreamingLink.repository.PromotionStreamingLinkRepository;
-import com.hoppin.domain.musician.entity.Musician;
-import com.hoppin.domain.musician.repository.MusicianRepository;
+import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionChannel;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
+import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.global.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +26,11 @@ import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingCl
 import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
 import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -66,9 +73,9 @@ public class MusicPromotionService {
                 request.shortDescription()
         ));
 
-        saveStreamingLinks(request, promotion);
-        String trackingCode = generateUniqueTrackingCode();
+        saveStreamingLinks(request.streamingLinks(), promotion);
 
+        String trackingCode = generateUniqueTrackingCode();
         String backendBase = trimTrailingSlash(backendBaseUrl);
         String frontendBase = trimTrailingSlash(frontendBaseUrl);
 
@@ -83,7 +90,7 @@ public class MusicPromotionService {
                 detailUrl
         ));
 
-        return CreateMusicPromotionResponse.from(trackingUrl);
+        return CreateMusicPromotionResponse.from(trackingUrl, promotion.getId());
     }
 
     @Transactional(readOnly = true)
@@ -104,13 +111,32 @@ public class MusicPromotionService {
     }
 
     @Transactional
+    public void updateMusicPromotion(Long musicianId, Long promotionId, UpdateMusicPromotionRequest request) {
+        validateUpdateRequest(request);
+
+        MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
+                .orElseThrow(() -> new ResourceNotFoundException("음악 홍보를 찾을 수 없습니다."));
+
+        validateOwnership(musicianId, promotion);
+
+        promotion.update(
+                request.activityName(),
+                request.instagramAccount(),
+                request.songTitle(),
+                request.releaseDate(),
+                request.imageUrl(),
+                request.shortDescription()
+        );
+
+        syncStreamingLinks(promotion, request.streamingLinks());
+    }
+
+    @Transactional
     public void deleteMusicPromotion(Long musicianId, Long promotionId) {
         MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new ResourceNotFoundException("음악 홍보를 찾을 수 없습니다."));
 
-        if (!promotion.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("해당 홍보를 삭제할 권한이 없습니다.");
-        }
+        validateOwnership(musicianId, promotion);
 
         promotionTrackingClickRepository.deleteByPromotionId(promotionId);
         promotionStreamingClickRepository.deleteByPromotionId(promotionId);
@@ -120,23 +146,72 @@ public class MusicPromotionService {
         musicPromotionRepository.delete(promotion);
     }
 
+    private void syncStreamingLinks(
+            MusicPromotion promotion,
+            List<UpdateMusicPromotionRequest.StreamingLinkRequest> requestedLinks
+    ) {
+        List<PromotionStreamingLink> existingLinks =
+                promotionStreamingLinkRepository.findByPromotionId(promotion.getId());
 
-    // TODO: 이 아래에 있는 함수들은 Helper로 따로 정리하기
-    private String generateUniqueTrackingCode() {
-        for (int attempt = 0; attempt < MAX_TRACKING_CODE_GENERATION_ATTEMPTS; attempt++) {
-            String trackingCode = trackingCodeGenerator.generate();
-            if (!trackingLinkRepository.existsByTrackingCode(trackingCode)) {
-                return trackingCode;
-            }
+        Map<String, PromotionStreamingLink> existingLinkMap = new HashMap<>();
+        for (PromotionStreamingLink existingLink : existingLinks) {
+            existingLinkMap.put(existingLink.getStreamingCode(), existingLink);
         }
-        throw new IllegalStateException("추적 코드를 생성하지 못했습니다.");
-    }
 
-    private void saveStreamingLinks(CreateMusicPromotionRequest request, MusicPromotion promotion) {
+        Set<String> requestedStreamingCodes = new HashSet<>();
         String backendBase = trimTrailingSlash(backendBaseUrl);
 
-        for (int i = 0; i < request.streamingLinks().size(); i++) {
-            String originalUrl = request.streamingLinks().get(i).url();
+        for (int i = 0; i < requestedLinks.size(); i++) {
+            UpdateMusicPromotionRequest.StreamingLinkRequest requestedLink = requestedLinks.get(i);
+            int displayOrder = i + 1;
+
+            if (requestedLink.streamingCode() == null || requestedLink.streamingCode().isBlank()) {
+                String originalUrl = requestedLink.url();
+                String domain = streamingDomainExtractor.extract(originalUrl);
+                String streamingCode = streamingCodeGenerator.generate();
+                String redirectUrl = backendBase + "/s/" + streamingCode;
+
+                PromotionStreamingLink newLink = new PromotionStreamingLink(
+                        promotion,
+                        streamingCode,
+                        originalUrl,
+                        domain,
+                        redirectUrl,
+                        displayOrder
+                );
+
+                promotionStreamingLinkRepository.save(newLink);
+                continue;
+            }
+
+            PromotionStreamingLink existingLink = existingLinkMap.get(requestedLink.streamingCode());
+            if (existingLink == null) {
+                throw new IllegalArgumentException("존재하지 않는 스트리밍 링크입니다. code=" + requestedLink.streamingCode());
+            }
+
+            String updatedUrl = requestedLink.url();
+            String updatedDomain = streamingDomainExtractor.extract(updatedUrl);
+
+            existingLink.update(updatedUrl, updatedDomain, displayOrder);
+            requestedStreamingCodes.add(existingLink.getStreamingCode());
+        }
+
+        for (PromotionStreamingLink existingLink : existingLinks) {
+            if (!requestedStreamingCodes.contains(existingLink.getStreamingCode())) {
+                promotionStreamingClickRepository.deleteByStreamingLinkId(existingLink.getId());
+                promotionStreamingLinkRepository.delete(existingLink);
+            }
+        }
+    }
+
+    private void saveStreamingLinks(
+            List<CreateMusicPromotionRequest.StreamingLinkRequest> streamingLinks,
+            MusicPromotion promotion
+    ) {
+        String backendBase = trimTrailingSlash(backendBaseUrl);
+
+        for (int i = 0; i < streamingLinks.size(); i++) {
+            String originalUrl = streamingLinks.get(i).url();
             String domain = streamingDomainExtractor.extract(originalUrl);
             String streamingCode = streamingCodeGenerator.generate();
             String redirectUrl = backendBase + "/s/" + streamingCode;
@@ -152,6 +227,22 @@ public class MusicPromotionService {
             );
 
             promotionStreamingLinkRepository.save(streamingLink);
+        }
+    }
+
+    private String generateUniqueTrackingCode() {
+        for (int attempt = 0; attempt < MAX_TRACKING_CODE_GENERATION_ATTEMPTS; attempt++) {
+            String trackingCode = trackingCodeGenerator.generate();
+            if (!trackingLinkRepository.existsByTrackingCode(trackingCode)) {
+                return trackingCode;
+            }
+        }
+        throw new IllegalStateException("추적 코드를 생성하지 못했습니다.");
+    }
+
+    private void validateOwnership(Long musicianId, MusicPromotion promotion) {
+        if (!promotion.getMusician().getId().equals(musicianId)) {
+            throw new IllegalArgumentException("해당 홍보를 수정 또는 삭제할 권한이 없습니다.");
         }
     }
 
@@ -177,11 +268,34 @@ public class MusicPromotionService {
         }
     }
 
+    private void validateUpdateRequest(UpdateMusicPromotionRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("요청 본문은 필수입니다.");
+        }
+        requireText(request.activityName(), "활동명은 필수입니다.");
+        requireText(request.instagramAccount(), "인스타그램 계정은 필수입니다.");
+        requireText(request.songTitle(), "곡명은 필수입니다.");
+        if (request.releaseDate() == null) {
+            throw new IllegalArgumentException("발매일은 필수입니다.");
+        }
+        requireText(request.imageUrl(), "이미지 URL은 필수입니다.");
+        requireText(request.shortDescription(), "짧은 설명은 필수입니다.");
+
+        if (request.streamingLinks() == null || request.streamingLinks().isEmpty()) {
+            throw new IllegalArgumentException("스트리밍 링크는 최소 1개 이상 등록해야 합니다.");
+        }
+
+        for (UpdateMusicPromotionRequest.StreamingLinkRequest link : request.streamingLinks()) {
+            requireText(link.url(), "스트리밍 URL은 필수입니다.");
+        }
+    }
+
     private void requireText(String value, String message) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(message);
         }
     }
+
     private String trimTrailingSlash(String value) {
         if (value.endsWith("/")) {
             return value.substring(0, value.length() - 1);
@@ -189,4 +303,3 @@ public class MusicPromotionService {
         return value;
     }
 }
-
