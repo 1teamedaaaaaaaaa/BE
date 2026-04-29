@@ -107,7 +107,6 @@ class MusicPromotionServiceTest {
         MusicPromotion savedPromotion = promotionCaptor.getValue();
 
         assertThat(savedPromotion.getActivityName()).isEqualTo("첫 싱글 발매 프로모션");
-        assertThat(savedPromotion.getInstagramAccount()).isEqualTo("@hoppin_artist");
         assertThat(savedPromotion.getSongTitle()).isEqualTo("Blue Night");
         assertThat(savedPromotion.getImageUrl()).contains("hoppin-s3-bucket");
         assertThat(savedPromotion.getShortDescription()).isEqualTo("첫 싱글 발매 홍보입니다.");
@@ -200,7 +199,6 @@ class MusicPromotionServiceTest {
         assertThat(response.trackingCode()).isEqualTo("ABC123");
         assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/ABC123");
         assertThat(response.activityName()).isEqualTo("첫 싱글 발매 프로모션");
-        assertThat(response.instagramAccount()).isEqualTo("@hoppin_artist");
         assertThat(response.songTitle()).isEqualTo("Blue Night");
         assertThat(response.streamingLinks()).hasSize(2);
         assertThat(response.streamingLinks().get(0).streamingCode()).isEqualTo("STREAM1");
@@ -290,7 +288,6 @@ class MusicPromotionServiceTest {
         musicPromotionService.updateMusicPromotion(musicianId, promotionId, request);
 
         assertThat(promotion.getActivityName()).isEqualTo("수정된 활동명");
-        assertThat(promotion.getInstagramAccount()).isEqualTo("@new_account");
         assertThat(promotion.getSongTitle()).isEqualTo("New Song");
         assertThat(promotion.getReleaseDate()).isEqualTo(LocalDate.of(2026, 4, 27));
         assertThat(promotion.getImageUrl()).isEqualTo("https://example.com/new.jpg");
