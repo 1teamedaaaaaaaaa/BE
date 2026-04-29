@@ -15,6 +15,7 @@ import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.repository.MusicianRepository;
+import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 import com.hoppin.global.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ class MusicPromotionServiceTest {
     private final StreamingDomainExtractor streamingDomainExtractor = mock(StreamingDomainExtractor.class);
     private final PromotionTrackingClickRepository promotionTrackingClickRepository = mock(PromotionTrackingClickRepository.class);
     private final PromotionStreamingClickRepository promotionStreamingClickRepository = mock(PromotionStreamingClickRepository.class);
+    private final PromotionDiagnosisRepository promotionDiagnosisRepository = mock(PromotionDiagnosisRepository.class);
 
     private final MusicPromotionService musicPromotionService =
             new MusicPromotionService(
@@ -48,6 +50,7 @@ class MusicPromotionServiceTest {
                     promotionTrackingClickRepository,
                     promotionStreamingClickRepository,
                     promotionStreamingLinkRepository,
+                    promotionDiagnosisRepository,
                     trackingCodeGenerator,
                     streamingCodeGenerator,
                     streamingDomainExtractor
@@ -248,6 +251,7 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository).deleteByPromotionId(promotionId);
         verify(trackingLinkRepository).deleteByPromotionId(promotionId);
         verify(promotionStreamingLinkRepository).deleteByPromotionId(promotionId);
+        verify(promotionDiagnosisRepository).deleteByMusicPromotion_Id(promotionId);
         verify(musicPromotionRepository).delete(promotion);
     }
 
@@ -267,6 +271,7 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository, never()).deleteByPromotionId(anyLong());
         verify(trackingLinkRepository, never()).deleteByPromotionId(anyLong());
         verify(promotionStreamingLinkRepository, never()).deleteByPromotionId(anyLong());
+        verify(promotionDiagnosisRepository, never()).deleteByMusicPromotion_Id(anyLong());
         verify(musicPromotionRepository, never()).delete(any());
     }
 
@@ -301,6 +306,7 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository, never()).deleteByPromotionId(anyLong());
         verify(trackingLinkRepository, never()).deleteByPromotionId(anyLong());
         verify(promotionStreamingLinkRepository, never()).deleteByPromotionId(anyLong());
+        verify(promotionDiagnosisRepository, never()).deleteByMusicPromotion_Id(anyLong());
         verify(musicPromotionRepository, never()).delete(any());
     }
 }
