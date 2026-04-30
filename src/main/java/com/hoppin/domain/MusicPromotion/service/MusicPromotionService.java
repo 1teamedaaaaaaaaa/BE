@@ -79,7 +79,7 @@ public class MusicPromotionService {
         String frontendBase = trimTrailingSlash(frontendBaseUrl);
 
         String trackingUrl = backendBase + "/r/" + trackingCode;
-        String detailUrl = frontendBase + "/music-promotions/" + promotion.getId();
+        String detailUrl = frontendBase + "/album/" + promotion.getId();
 
         trackingLinkRepository.save(new PromotionTrackingLink(
                 promotion,
