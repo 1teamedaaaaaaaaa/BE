@@ -67,9 +67,11 @@ public class SecurityConfig {
                                 "/r/**",
                                 "/s/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/uploads/music-promotion-image").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/music-promotions").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/music-promotions/{promotionId}").permitAll()
+                        .requestMatchers("/api/dev/token").permitAll()
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/prometheus"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
