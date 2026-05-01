@@ -69,8 +69,8 @@ class MusicPromotionServiceTest {
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 List.of(
-                        new CreateMusicPromotionRequest.StreamingLinkRequest("https://open.spotify.com/track/test"),
-                        new CreateMusicPromotionRequest.StreamingLinkRequest("https://music.youtube.com/watch?v=test")
+                        new CreateMusicPromotionRequest.CreateStreamingLinkRequest("https://open.spotify.com/track/test"),
+                        new CreateMusicPromotionRequest.CreateStreamingLinkRequest("https://music.youtube.com/watch?v=test")
                 ),
                 "https://hoppin-s3-bucket.s3.ap-northeast-2.amazonaws.com/music-promotions/test.jpg",
                 "첫 싱글 발매 홍보입니다."
@@ -124,7 +124,7 @@ class MusicPromotionServiceTest {
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 List.of(
-                        new CreateMusicPromotionRequest.StreamingLinkRequest("https://musicpeak.site")
+                        new CreateMusicPromotionRequest.CreateStreamingLinkRequest("https://musicpeak.site")
                 ),
                 "https://hoppin-s3-bucket.s3.ap-northeast-2.amazonaws.com/music-promotions/test.jpg",
                 "첫 싱글 발매 홍보입니다."
@@ -193,13 +193,15 @@ class MusicPromotionServiceTest {
 
         assertThat(response).isNotNull();
         assertThat(response.promotionId()).isEqualTo(promotionId);
-        assertThat(response.trackingCode()).isEqualTo("ABC123");
-        assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/ABC123");
         assertThat(response.activityName()).isEqualTo("첫 싱글 발매 프로모션");
         assertThat(response.songTitle()).isEqualTo("Blue Night");
         assertThat(response.streamingLinks()).hasSize(2);
-        assertThat(response.streamingLinks().get(0).streamingCode()).isEqualTo("STREAM1");
-        assertThat(response.streamingLinks().get(1).streamingCode()).isEqualTo("STREAM2");
+        assertThat(response.streamingLinks().get(0).url()).isEqualTo("https://open.spotify.com/track/test");
+        assertThat(response.streamingLinks().get(0).clickUrl()).isEqualTo("http://localhost:8080/s/STREAM1");
+        assertThat(response.streamingLinks().get(0).displayOrder()).isEqualTo(1);
+        assertThat(response.streamingLinks().get(1).url()).isEqualTo("https://music.youtube.com/watch?v=test");
+        assertThat(response.streamingLinks().get(1).clickUrl()).isEqualTo("http://localhost:8080/s/STREAM2");
+        assertThat(response.streamingLinks().get(1).displayOrder()).isEqualTo(2);
     }
 
     @Test
@@ -258,11 +260,11 @@ class MusicPromotionServiceTest {
                 "New Song",
                 LocalDate.of(2026, 4, 27),
                 List.of(
-                        new UpdateMusicPromotionRequest.StreamingLinkRequest(
-                                "STREAM1",
+                        new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(
+                                "http://localhost:8080/s/STREAM1",
                                 "https://open.spotify.com/track/new1"
                         ),
-                        new UpdateMusicPromotionRequest.StreamingLinkRequest(
+                        new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(
                                 null,
                                 "https://music.apple.com/kr/song/new-link"
                         )
@@ -307,7 +309,7 @@ class MusicPromotionServiceTest {
                 "수정된 활동명",
                 "New Song",
                 LocalDate.of(2026, 4, 27),
-                List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
+                List.of(new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(null, "https://open.spotify.com/track/test")),
                 "https://example.com/new.jpg",
                 "수정된 설명"
         );
@@ -343,7 +345,7 @@ class MusicPromotionServiceTest {
                 "수정된 활동명",
                 "New Song",
                 LocalDate.of(2026, 4, 27),
-                List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
+                List.of(new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(null, "https://open.spotify.com/track/test")),
                 "https://example.com/new.jpg",
                 "수정된 설명"
         );
