@@ -11,5 +11,6 @@ public record CreateMusicPromotionRequest(
         String imageUrl,
         String shortDescription
 ) {
-    public record StreamingLinkRequest(String url) {}
+    public record StreamingLinkRequest(String url) {
+    }
 }

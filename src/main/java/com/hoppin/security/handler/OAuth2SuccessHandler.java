@@ -49,11 +49,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtTokenProvider.createAccessToken(musicianId, role);
         String refreshToken = jwtTokenProvider.createRefreshToken(musicianId);
 
+        System.out.println("accessToken = " + accessToken);
+
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("None")
-                .domain(".musicpeak.site")
+//로컬
+//                .sameSite("Lax")
+//개발
+               .sameSite("None")
+               .domain(".musicpeak.site")
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .build();

@@ -7,9 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,8 +29,10 @@ public class InstagramMediaController {
     )
     @GetMapping("/api/musicians/me/instagram/media")
     public ResponseEntity<ApiResponse<List<InstagramMediaResponse>>> getInstagramMedia(
-            @RequestHeader("X-Musician-Id") Long musicianId
+            Authentication authentication
     ) {
+        Long musicianId = Long.parseLong(authentication.getName());
+
         List<InstagramMediaResponse> response =
                 instagramMediaService.getMediaList(musicianId);
 
