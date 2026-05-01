@@ -98,7 +98,6 @@ class MusicPromotionServiceTest {
                 musicPromotionService.createMusicPromotion(musicianId, request);
 
         assertThat(response).isNotNull();
-        assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/TRACK123");
 
         ArgumentCaptor<MusicPromotion> promotionCaptor = ArgumentCaptor.forClass(MusicPromotion.class);
         verify(musicPromotionRepository).save(promotionCaptor.capture());
@@ -185,7 +184,7 @@ class MusicPromotionServiceTest {
         );
 
         when(musicPromotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
-        when(trackingLinkRepository.findByPromotionId(promotionId)).thenReturn(List.of(trackingLink));
+        when(trackingLinkRepository.findFirstByPromotionId(promotionId)).thenReturn(Optional.of(trackingLink));
         when(promotionStreamingLinkRepository.findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId))
                 .thenReturn(List.of(streamingLink1, streamingLink2));
 
@@ -195,6 +194,7 @@ class MusicPromotionServiceTest {
         assertThat(response.promotionId()).isEqualTo(promotionId);
         assertThat(response.activityName()).isEqualTo("첫 싱글 발매 프로모션");
         assertThat(response.songTitle()).isEqualTo("Blue Night");
+        assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/ABC123");
         assertThat(response.streamingLinks()).hasSize(2);
         assertThat(response.streamingLinks().get(0).url()).isEqualTo("https://open.spotify.com/track/test");
         assertThat(response.streamingLinks().get(0).clickUrl()).isEqualTo("http://localhost:8080/s/STREAM1");

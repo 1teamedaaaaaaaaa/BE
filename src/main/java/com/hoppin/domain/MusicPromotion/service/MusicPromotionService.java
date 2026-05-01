@@ -89,7 +89,7 @@ public class MusicPromotionService {
                 detailUrl
         ));
 
-        return CreateMusicPromotionResponse.from(trackingUrl, promotion.getId());
+        return CreateMusicPromotionResponse.from(promotion.getId());
     }
 
     @Transactional(readOnly = true)
@@ -97,10 +97,14 @@ public class MusicPromotionService {
         MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new ResourceNotFoundException("음악 홍보를 찾을 수 없습니다."));
 
+        String trackingUrl = trackingLinkRepository.findFirstByPromotionId(promotionId)
+                .map(PromotionTrackingLink::getTrackingUrl)
+                .orElseThrow(() -> new IllegalStateException("홍보에 연결된 스마트 링크를 찾을 수 없습니다."));
+
         List<PromotionStreamingLink> streamingLinks =
                 promotionStreamingLinkRepository.findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId);
 
-        return MusicPromotionDetailResponse.from(promotion, streamingLinks);
+        return MusicPromotionDetailResponse.from(promotion, trackingUrl, streamingLinks);
     }
 
     @Transactional

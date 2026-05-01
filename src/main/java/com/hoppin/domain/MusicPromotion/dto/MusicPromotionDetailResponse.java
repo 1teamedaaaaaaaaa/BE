@@ -16,11 +16,13 @@ public record MusicPromotionDetailResponse(
         String imageUrl,
         String shortDescription,
         LocalDateTime createdAt,
+        String trackingUrl,
         List<StreamingLinkResponse> streamingLinks
 ) {
 
     public static MusicPromotionDetailResponse from(
             MusicPromotion promotion,
+            String trackingUrl,
             List<PromotionStreamingLink> streamingLinks
     ) {
         return new MusicPromotionDetailResponse(
@@ -31,6 +33,7 @@ public record MusicPromotionDetailResponse(
                 promotion.getImageUrl(),
                 promotion.getShortDescription(),
                 promotion.getCreatedAt(),
+                trackingUrl,
                 streamingLinks.stream()
                         .map(StreamingLinkResponse::from)
                         .toList()
