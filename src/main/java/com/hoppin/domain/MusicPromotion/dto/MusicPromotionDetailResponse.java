@@ -10,32 +10,30 @@ import java.util.List;
 
 public record MusicPromotionDetailResponse(
         Long promotionId,
-        String trackingCode,
-        String trackingUrl,
         String activityName,
         String songTitle,
         LocalDate releaseDate,
         String imageUrl,
         String shortDescription,
         LocalDateTime createdAt,
+        String trackingUrl,
         List<StreamingLinkResponse> streamingLinks
 ) {
 
     public static MusicPromotionDetailResponse from(
             MusicPromotion promotion,
-            PromotionTrackingLink trackingLink,
+            String trackingUrl,
             List<PromotionStreamingLink> streamingLinks
     ) {
         return new MusicPromotionDetailResponse(
                 promotion.getId(),
-                trackingLink.getTrackingCode(),
-                trackingLink.getTrackingUrl(),
                 promotion.getActivityName(),
                 promotion.getSongTitle(),
                 promotion.getReleaseDate(),
                 promotion.getImageUrl(),
                 promotion.getShortDescription(),
                 promotion.getCreatedAt(),
+                trackingUrl,
                 streamingLinks.stream()
                         .map(StreamingLinkResponse::from)
                         .toList()
@@ -43,16 +41,14 @@ public record MusicPromotionDetailResponse(
     }
 
     public record StreamingLinkResponse(
-            String streamingCode,
-            String domain,
-            String redirectUrl,
+            String url,
+            String clickUrl,
             Integer displayOrder
     ) {
 
         public static StreamingLinkResponse from(PromotionStreamingLink streamingLink) {
             return new StreamingLinkResponse(
-                    streamingLink.getStreamingCode(),
-                    streamingLink.getDomain(),
+                    streamingLink.getOriginalUrl(),
                     streamingLink.getRedirectUrl(),
                     streamingLink.getDisplayOrder()
             );

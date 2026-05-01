@@ -56,7 +56,7 @@ class RepositoryDBTest {
         MusicPromotion promotion = musicPromotionRepository.save(
                 new MusicPromotion(
                         musician,
-                        "musician_a",
+                        "신곡 발매 홍보",
                         "밤의 파도",
                         LocalDate.of(2026, 5, 1),
                         "https://cdn.example.com/image.jpg",

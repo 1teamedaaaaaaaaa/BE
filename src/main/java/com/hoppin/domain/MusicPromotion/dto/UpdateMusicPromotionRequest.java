@@ -7,12 +7,12 @@ public record UpdateMusicPromotionRequest(
         String activityName,
         String songTitle,
         LocalDate releaseDate,
-        List<StreamingLinkRequest> streamingLinks,
+        List<UpdateStreamingLinkRequest> streamingLinks,
         String imageUrl,
         String shortDescription
 ) {
-    public record StreamingLinkRequest(
-            String streamingCode,
+    public record UpdateStreamingLinkRequest(
+            String redirectUrl,
             String url
     ) {
     }
