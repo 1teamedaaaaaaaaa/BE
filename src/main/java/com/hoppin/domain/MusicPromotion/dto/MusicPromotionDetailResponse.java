@@ -10,8 +10,6 @@ import java.util.List;
 
 public record MusicPromotionDetailResponse(
         Long promotionId,
-        String trackingCode,
-        String trackingUrl,
         String activityName,
         String songTitle,
         LocalDate releaseDate,
@@ -23,13 +21,10 @@ public record MusicPromotionDetailResponse(
 
     public static MusicPromotionDetailResponse from(
             MusicPromotion promotion,
-            PromotionTrackingLink trackingLink,
             List<PromotionStreamingLink> streamingLinks
     ) {
         return new MusicPromotionDetailResponse(
                 promotion.getId(),
-                trackingLink.getTrackingCode(),
-                trackingLink.getTrackingUrl(),
                 promotion.getActivityName(),
                 promotion.getSongTitle(),
                 promotion.getReleaseDate(),
@@ -43,16 +38,14 @@ public record MusicPromotionDetailResponse(
     }
 
     public record StreamingLinkResponse(
-            String streamingCode,
-            String domain,
-            String redirectUrl,
+            String url,
+            String clickUrl,
             Integer displayOrder
     ) {
 
         public static StreamingLinkResponse from(PromotionStreamingLink streamingLink) {
             return new StreamingLinkResponse(
-                    streamingLink.getStreamingCode(),
-                    streamingLink.getDomain(),
+                    streamingLink.getOriginalUrl(),
                     streamingLink.getRedirectUrl(),
                     streamingLink.getDisplayOrder()
             );
