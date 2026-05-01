@@ -5,6 +5,7 @@ import com.hoppin.domain.Instagram.dto.InstagramMeResponse;
 import com.hoppin.domain.Instagram.dto.InstagramTokenResponse;
 import com.hoppin.global.config.InstagramOAuthProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -18,13 +19,23 @@ public class InstagramOAuthClient {
 
     private final RestClient restClient = RestClient.create();
 
+    @Value("${INSTAGRAM_REDIRECT_URI:NOT_FOUND}")
+    private String rawRedirectUri;
+
+    @Value("${instagram.oauth.redirect-uri:NOT_FOUND}")
+    private String boundRedirectUri;
+
     public InstagramTokenResponse requestShortLivedToken(String code) {
+
         LinkedMultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("client_id", instagramOAuthProperties.clientId());
         form.add("client_secret", instagramOAuthProperties.clientSecret());
         form.add("grant_type", "authorization_code");
         form.add("redirect_uri", instagramOAuthProperties.redirectUri());
         form.add("code", code);
+
+        System.out.println("instagram token code = " + code);
+        System.out.println("instagram redirectUri = " + instagramOAuthProperties.redirectUri());
 
         return restClient.post()
                 .uri(instagramOAuthProperties.tokenUrl())
