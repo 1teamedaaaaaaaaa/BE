@@ -89,7 +89,7 @@ public class MusicPromotionService {
                 detailUrl
         ));
 
-        return CreateMusicPromotionResponse.from(trackingUrl, promotion.getId());
+        return CreateMusicPromotionResponse.from(promotion.getId());
     }
 
     @Transactional(readOnly = true)
@@ -97,16 +97,14 @@ public class MusicPromotionService {
         MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new ResourceNotFoundException("음악 홍보를 찾을 수 없습니다."));
 
-        PromotionTrackingLink trackingLink = trackingLinkRepository.findByPromotionId(promotionId)
-                .stream()
-                .filter(link -> link.getChannel() == PromotionChannel.INSTAGRAM)
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("홍보 추적 링크를 찾을 수 없습니다."));
+        String trackingUrl = trackingLinkRepository.findFirstByPromotionId(promotionId)
+                .map(PromotionTrackingLink::getTrackingUrl)
+                .orElseThrow(() -> new IllegalStateException("홍보에 연결된 스마트 링크를 찾을 수 없습니다."));
 
         List<PromotionStreamingLink> streamingLinks =
                 promotionStreamingLinkRepository.findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId);
 
-        return MusicPromotionDetailResponse.from(promotion, trackingLink, streamingLinks);
+        return MusicPromotionDetailResponse.from(promotion, trackingUrl, streamingLinks);
     }
 
     @Transactional
@@ -146,7 +144,7 @@ public class MusicPromotionService {
 
     private void syncStreamingLinks(
             MusicPromotion promotion,
-            List<UpdateMusicPromotionRequest.StreamingLinkRequest> requestedLinks
+            List<UpdateMusicPromotionRequest.UpdateStreamingLinkRequest> requestedLinks
     ) {
         List<PromotionStreamingLink> existingLinks =
                 promotionStreamingLinkRepository.findByPromotionId(promotion.getId());
@@ -160,10 +158,10 @@ public class MusicPromotionService {
         String backendBase = trimTrailingSlash(backendBaseUrl);
 
         for (int i = 0; i < requestedLinks.size(); i++) {
-            UpdateMusicPromotionRequest.StreamingLinkRequest requestedLink = requestedLinks.get(i);
+            UpdateMusicPromotionRequest.UpdateStreamingLinkRequest requestedLink = requestedLinks.get(i);
             int displayOrder = i + 1;
 
-            if (requestedLink.streamingCode() == null || requestedLink.streamingCode().isBlank()) {
+            if (requestedLink.redirectUrl() == null || requestedLink.redirectUrl().isBlank()) {
                 String originalUrl = requestedLink.url();
                 String domain = streamingDomainExtractor.extract(originalUrl);
                 String streamingCode = streamingCodeGenerator.generate();
@@ -182,9 +180,10 @@ public class MusicPromotionService {
                 continue;
             }
 
-            PromotionStreamingLink existingLink = existingLinkMap.get(requestedLink.streamingCode());
+            String streamingCode = extractStreamingCode(requestedLink.redirectUrl(), backendBase);
+            PromotionStreamingLink existingLink = existingLinkMap.get(streamingCode);
             if (existingLink == null) {
-                throw new IllegalArgumentException("존재하지 않는 스트리밍 링크입니다. code=" + requestedLink.streamingCode());
+                throw new IllegalArgumentException("존재하지 않는 스트리밍 링크입니다. code=" + streamingCode);
             }
 
             String updatedUrl = requestedLink.url();
@@ -203,7 +202,7 @@ public class MusicPromotionService {
     }
 
     private void saveStreamingLinks(
-            List<CreateMusicPromotionRequest.StreamingLinkRequest> streamingLinks,
+            List<CreateMusicPromotionRequest.CreateStreamingLinkRequest> streamingLinks,
             MusicPromotion promotion
     ) {
         String backendBase = trimTrailingSlash(backendBaseUrl);
@@ -260,7 +259,7 @@ public class MusicPromotionService {
             throw new IllegalArgumentException("스트리밍 링크는 최소 1개 이상 등록해야 합니다.");
         }
 
-        for (CreateMusicPromotionRequest.StreamingLinkRequest link : request.streamingLinks()) {
+        for (CreateMusicPromotionRequest.CreateStreamingLinkRequest link : request.streamingLinks()) {
             requireText(link.url(), "스트리밍 URL은 필수입니다.");
         }
     }
@@ -281,9 +280,23 @@ public class MusicPromotionService {
             throw new IllegalArgumentException("스트리밍 링크는 최소 1개 이상 등록해야 합니다.");
         }
 
-        for (UpdateMusicPromotionRequest.StreamingLinkRequest link : request.streamingLinks()) {
+        for (UpdateMusicPromotionRequest.UpdateStreamingLinkRequest link : request.streamingLinks()) {
             requireText(link.url(), "스트리밍 URL은 필수입니다.");
         }
+    }
+
+    private String extractStreamingCode(String redirectUrl, String backendBase) {
+        String expectedPrefix = backendBase + "/s/";
+        if (redirectUrl == null || !redirectUrl.startsWith(expectedPrefix)) {
+            throw new IllegalArgumentException("유효하지 않은 스트리밍 redirectUrl 입니다.");
+        }
+
+        String streamingCode = redirectUrl.substring(expectedPrefix.length());
+        if (streamingCode.isBlank() || streamingCode.contains("/")) {
+            throw new IllegalArgumentException("유효하지 않은 스트리밍 redirectUrl 입니다.");
+        }
+
+        return streamingCode;
     }
 
     private void requireText(String value, String message) {

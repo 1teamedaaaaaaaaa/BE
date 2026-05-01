@@ -35,6 +35,11 @@ public class PromotionTrackingLinkRepositoryJpaImpl implements PromotionTracking
     }
 
     @Override
+    public Optional<PromotionTrackingLink> findFirstByPromotionId(Long promotionId) {
+        return trackingLinkJpaRepository.findFirstByPromotionId(promotionId);
+    }
+
+    @Override
     public List<PromotionTrackingLink> findByPromotionId(Long promotionId) {
         return trackingLinkJpaRepository.findByPromotionId(promotionId);
     }
