@@ -26,6 +26,18 @@ spring:
     init:
       mode: never
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   security:
     oauth2:
       client:
@@ -109,6 +121,10 @@ management:
 app:
   backend-base-url: ${BACKEND_BASE_URL}
   frontend-base-url: ${FRONTEND_BASE_URL}
+
+  mail:
+    from: ${MAIL_USERNAME}
+    from-name: PEAK
 
 jwt:
   secret: ${JWT_SECRET}

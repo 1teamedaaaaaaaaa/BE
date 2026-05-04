@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class AnalysisCreateRequest {
 
     private LocalDate sinceDate;
-
+    private String InstagramAccountId;
     private String mainPainPoint;
 
     private String mainResourceConstraint;
