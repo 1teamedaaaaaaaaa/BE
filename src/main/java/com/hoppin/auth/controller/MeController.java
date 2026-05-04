@@ -1,21 +1,16 @@
 package com.hoppin.auth.controller;
 
 import com.hoppin.domain.musician.entity.Musician;
-import com.hoppin.domain.musician.repository.MusicianRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Musician", description = "회원 정보 조회 API")
 @RestController
-@RequiredArgsConstructor
 public class MeController {
-
-    private final MusicianRepository musicianRepository;
 
     @Operation(
             summary = "내 정보 조회",
@@ -23,10 +18,7 @@ public class MeController {
     )
     @GetMapping("/api/me")
     public Map<String, Object> me(Authentication authentication) {
-        Long musicianId = Long.parseLong(authentication.getName());
-
-        Musician musician = musicianRepository.findById(musicianId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+        Musician musician = (Musician) authentication.getPrincipal();
 
         return Map.of(
                 "id", musician.getId(),

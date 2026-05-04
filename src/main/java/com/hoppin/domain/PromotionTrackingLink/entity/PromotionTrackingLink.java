@@ -20,7 +20,7 @@ public class PromotionTrackingLink extends BaseEntity {
     @Column(name = "tracking_link_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "promotion_id", nullable = false)
     private MusicPromotion promotion;
 

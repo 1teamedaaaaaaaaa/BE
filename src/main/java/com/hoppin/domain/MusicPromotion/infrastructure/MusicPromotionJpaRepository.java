@@ -14,11 +14,15 @@ public interface MusicPromotionJpaRepository extends JpaRepository<MusicPromotio
     List<MusicPromotion> findByMusicianId(Long musicianId);
 
     @Query("""
-        select p
-        from MusicPromotion p
-        where p.musician.id = :musicianId
-          and (:keyword is null or :keyword = '' or lower(p.songTitle) like lower(concat(:keyword, '%')))
-        order by p.linkClickCount desc
+    select p
+    from MusicPromotion p
+    where p.musician.id = :musicianId
+      and (:keyword is null or :keyword = '' or lower(p.songTitle) like lower(concat(:keyword, '%')))
+    order by (
+        select count(c)
+        from PromotionTrackingClick c
+        where c.promotion = p
+        ) desc
     """)
     Page<MusicPromotion> findMyPagePromotions(
             @Param("musicianId") Long musicianId,

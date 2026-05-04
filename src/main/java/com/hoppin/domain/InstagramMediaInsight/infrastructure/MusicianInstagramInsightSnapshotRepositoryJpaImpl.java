@@ -29,4 +29,9 @@ public class MusicianInstagramInsightSnapshotRepositoryJpaImpl
     public List<MusicianInstagramInsightSnapshot> findByMusicianIdOrderByCreatedAtDesc(Long promotionId) {
         return jpaRepository.findByMusicianIdOrderByCreatedAtDesc(promotionId);
     }
+
+    @Override
+    public Optional<MusicianInstagramInsightSnapshot> findTopByMusicianIdOrderByCreatedAtDesc(Long musicianId) {
+        return jpaRepository.findTopByMusicianIdOrderByCreatedAtDesc(musicianId);
+    }
 }

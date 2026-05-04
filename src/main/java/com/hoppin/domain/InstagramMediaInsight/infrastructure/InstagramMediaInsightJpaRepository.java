@@ -9,4 +9,9 @@ public interface InstagramMediaInsightJpaRepository
         extends JpaRepository<InstagramMediaInsight, Long> {
 
     List<InstagramMediaInsight> findBySnapshotId(Long snapshotId);
+
+    List<InstagramMediaInsight> findBySnapshotIdAndTimestampGreaterThanEqual(
+            Long snapshotId,
+            String sinceDate
+    );
 }

@@ -55,10 +55,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .httpOnly(true)
                 .secure(true)
 //로컬
-//                .sameSite("Lax")
-//개발
-               .sameSite("None")
-               .domain(".musicpeak.site")
+                .sameSite("Lax")
+//운영
+//               .sameSite("None")
+//               .domain(".musicpeak.site")
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .build();

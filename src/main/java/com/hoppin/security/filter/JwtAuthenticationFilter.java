@@ -29,25 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println("==== JWT FILTER ====");
-        System.out.println("URI = " + request.getRequestURI());
-        System.out.println("Query = " + request.getQueryString());
-        System.out.println("Origin = " + request.getHeader("Origin"));
-        System.out.println("Referer = " + request.getHeader("Referer"));
-        System.out.println("Authorization = " + request.getHeader("Authorization"));
-        System.out.println("Cookie Header = " + request.getHeader("Cookie"));
-
-        if (request.getCookies() == null) {
-            System.out.println("cookies = null");
-        } else {
-            for (var cookie : request.getCookies()) {
-                System.out.println("cookie name = " + cookie.getName());
-            }
-        }
-
         String token = resolveToken(request);
-
-        System.out.println("resolved token exists = " + (token != null));
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
 
@@ -66,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            musicianId,
+                            musician,
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + role))
                     );

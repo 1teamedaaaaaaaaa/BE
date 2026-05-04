@@ -1,5 +1,6 @@
 package com.hoppin.domain.MusicPromotion.entity;
 
+import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 import com.hoppin.domain.common.entity.BaseEntity;
 import com.hoppin.domain.musician.entity.Musician;
 import jakarta.persistence.*;
@@ -39,10 +40,8 @@ public class MusicPromotion extends BaseEntity {
     @Column(name = "short_description", nullable = false, length = 255)
     private String shortDescription;
 
-    // 임시 3세트
-    private Long linkClickCount;
-    private Long shareCount;
-    private Long profileVisitCount;
+    @OneToOne(mappedBy = "promotion", fetch = FetchType.LAZY)
+    private PromotionTrackingLink promotionTrackingLink;
 
     public MusicPromotion(
             Musician musician,

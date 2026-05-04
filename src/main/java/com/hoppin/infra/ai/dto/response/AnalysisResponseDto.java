@@ -1,4 +1,4 @@
-package com.hoppin.infra.ai.dto;
+package com.hoppin.infra.ai.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,5 +11,10 @@ public class AnalysisResponseDto {
 
     private String headline;
     private DiagnosisDto diagnosis;
+
+    private CalculatedMetricsDto calculatedMetrics;
+    private ChannelInsightDto channelInsight;
+    private PostInsightDto postInsight;
+
     private List<ActionCardDto> actions;
 }

@@ -5,6 +5,7 @@ import com.hoppin.domain.MusicPromotion.dto.CreateMusicPromotionResponse;
 import com.hoppin.domain.MusicPromotion.dto.MusicPromotionDetailResponse;
 import com.hoppin.domain.MusicPromotion.dto.UpdateMusicPromotionRequest;
 import com.hoppin.domain.MusicPromotion.service.MusicPromotionService;
+import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +32,8 @@ public class MusicPromotionController {
             Authentication authentication,
             @RequestBody CreateMusicPromotionRequest request
     ) {
-        Long musicianId = Long.parseLong(authentication.getName());
+        Musician musician = (Musician) authentication.getPrincipal();
+        Long musicianId = musician.getId();
 
         CreateMusicPromotionResponse response =
                 musicPromotionService.createMusicPromotion(musicianId, request);
@@ -68,7 +70,8 @@ public class MusicPromotionController {
             @PathVariable Long promotionId,
             @RequestBody UpdateMusicPromotionRequest request
     ) {
-        Long musicianId = Long.parseLong(authentication.getName());
+        Musician musician = (Musician) authentication.getPrincipal();
+        Long musicianId = musician.getId();
 
         musicPromotionService.updateMusicPromotion(musicianId, promotionId, request);
 
@@ -88,8 +91,8 @@ public class MusicPromotionController {
             Authentication authentication,
             @PathVariable Long promotionId
     ) {
-
-        Long musicianId = Long.parseLong(authentication.getName());
+        Musician musician = (Musician) authentication.getPrincipal();
+        Long musicianId = musician.getId();
 
         musicPromotionService.deleteMusicPromotion(musicianId, promotionId);
         return ResponseEntity.ok(ApiResponse.success(null, "음악 홍보가 삭제되었습니다."));

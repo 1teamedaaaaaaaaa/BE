@@ -1,8 +1,8 @@
 package com.hoppin.ai.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hoppin.infra.ai.dto.AnalysisRequestDto;
-import com.hoppin.infra.ai.dto.AnalysisResponseDto;
+import com.hoppin.infra.ai.dto.request.AnalysisRequestDto;
+import com.hoppin.infra.ai.dto.response.AnalysisResponseDto;
 import com.hoppin.infra.ai.service.AiService;
 import com.hoppin.infra.ai.client.OpenAiClient;
 import com.hoppin.infra.ai.util.CacheKeyUtil;

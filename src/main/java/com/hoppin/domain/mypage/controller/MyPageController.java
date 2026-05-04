@@ -1,5 +1,6 @@
 package com.hoppin.domain.mypage.controller;
 
+import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.mypage.dto.MyPagePromotionPageResponse;
 import com.hoppin.domain.mypage.service.MyPageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +27,8 @@ public class MyPageController {
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page
     ) {
-        Long musicianId = Long.parseLong(authentication.getName());
+        Musician musician = (Musician) authentication.getPrincipal();
+        Long musicianId = musician.getId();
 
         return myPageService.getMyPromotions(
                 musicianId,

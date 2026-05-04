@@ -11,4 +11,9 @@ public interface InstagramMediaInsightRepository {
     List<InstagramMediaInsight> saveAll(List<InstagramMediaInsight> insights);
 
     List<InstagramMediaInsight> findBySnapshotId(Long snapshotId);
+
+    List<InstagramMediaInsight> findBySnapshotIdAndTimestampGreaterThanEqual(
+            Long snapshotId,
+            String sinceDate
+    );
 }
