@@ -13,4 +13,6 @@ public interface MusicianInstagramInsightSnapshotRepository {
     Optional<MusicianInstagramInsightSnapshot> findById(Long id);
 
     List<MusicianInstagramInsightSnapshot> findByMusicianIdOrderByCreatedAtDesc(Long promotionId);
+
+    Optional<MusicianInstagramInsightSnapshot> findTopByMusicianIdOrderByCreatedAtDesc(Long musicianId);
 }

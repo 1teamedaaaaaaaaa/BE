@@ -2,6 +2,7 @@ package com.hoppin.domain.InstagramConnection.controller;
 
 import com.hoppin.domain.InstagramConnection.dto.InstagramMediaResponse;
 import com.hoppin.domain.InstagramConnection.service.InstagramMediaService;
+import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +32,8 @@ public class InstagramMediaController {
     public ResponseEntity<ApiResponse<List<InstagramMediaResponse>>> getInstagramMedia(
             Authentication authentication
     ) {
-        Long musicianId = Long.parseLong(authentication.getName());
+        Musician musician = (Musician) authentication.getPrincipal();
+        Long musicianId = musician.getId();
 
         List<InstagramMediaResponse> response =
                 instagramMediaService.getMediaList(musicianId);

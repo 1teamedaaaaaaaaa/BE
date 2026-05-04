@@ -5,6 +5,9 @@ import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClic
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class PromotionTrackingClickRepositoryJpaImpl implements PromotionTrackingClickRepository {
@@ -29,5 +32,18 @@ public class PromotionTrackingClickRepositoryJpaImpl implements PromotionTrackin
     @Override
     public void deleteByPromotionId(Long promotionId) {
         trackingClickJpaRepository.deleteByPromotionId(promotionId);
+    }
+
+    @Override
+    public long countByPromotionIdAndClickedAtAfter(Long promotionId, LocalDateTime sinceDateTime) {
+        return trackingClickJpaRepository.countByPromotionIdAndClickedAtGreaterThanEqual(promotionId, sinceDateTime);
+    }
+
+    @Override
+    public List<PromotionTrackingClick> findByPromotionIdAndClickedAtAfter(
+            Long promotionId,
+            LocalDateTime sinceDateTime
+    ) {
+        return trackingClickJpaRepository.findByPromotionIdAndClickedAtGreaterThanEqual(promotionId, sinceDateTime);
     }
 }

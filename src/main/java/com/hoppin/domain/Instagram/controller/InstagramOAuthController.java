@@ -1,6 +1,7 @@
 package com.hoppin.domain.Instagram.controller;
 
 import com.hoppin.domain.Instagram.service.InstagramOAuthService;
+import com.hoppin.domain.musician.entity.Musician;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +37,13 @@ public class InstagramOAuthController {
     ) throws IOException {
         String redirectUrl;
 
-        if (authentication == null || authentication.getName() == null) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal() instanceof Musician musician)) {
+
             redirectUrl = instagramOAuthService.buildLoginRedirectUrl(request, state);
         } else {
-            Long musicianId = Long.parseLong(authentication.getName());
+            Long musicianId = musician.getId();
             redirectUrl = instagramOAuthService.connectAndGetRedirectUrl(musicianId, code, state);
         }
 

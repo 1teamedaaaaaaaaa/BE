@@ -2,6 +2,7 @@ package com.hoppin.domain.MusicPromotion.infrastructure;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
+import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
 import com.hoppin.domain.mypage.dto.MyPagePromotionItemResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class MusicPromotionRepositoryJpaImpl implements MusicPromotionRepository {
 
     private final MusicPromotionJpaRepository musicPromotionJpaRepository;
+    private final PromotionTrackingClickRepository promotionTrackingClickRepository;
 
     @Override
     public MusicPromotion save(MusicPromotion promotion) {
@@ -54,13 +56,13 @@ public class MusicPromotionRepositoryJpaImpl implements MusicPromotionRepository
     }
 
     private MyPagePromotionItemResponse toMyPagePromotionItemResponse(MusicPromotion promotion) {
+        long linkClickCount =
+                promotionTrackingClickRepository.countByPromotionId(promotion.getId());
         return new MyPagePromotionItemResponse(
                 promotion.getId(),
                 promotion.getSongTitle(),
                 promotion.getImageUrl(),
-                promotion.getShareCount(),
-                promotion.getProfileVisitCount(),
-                promotion.getLinkClickCount()
+                linkClickCount
         );
     }
 }

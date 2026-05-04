@@ -1,4 +1,4 @@
-package com.hoppin.infra.ai.dto;
+package com.hoppin.infra.ai.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

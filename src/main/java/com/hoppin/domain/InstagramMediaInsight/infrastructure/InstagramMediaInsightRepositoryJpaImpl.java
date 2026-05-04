@@ -27,4 +27,12 @@ public class InstagramMediaInsightRepositoryJpaImpl implements InstagramMediaIns
     public List<InstagramMediaInsight> findBySnapshotId(Long snapshotId) {
         return jpaRepository.findBySnapshotId(snapshotId);
     }
+
+    @Override
+    public List<InstagramMediaInsight> findBySnapshotIdAndTimestampGreaterThanEqual(
+            Long snapshotId,
+            String sinceDate
+    ) {
+        return jpaRepository.findBySnapshotIdAndTimestampGreaterThanEqual(snapshotId, sinceDate);
+    }
 }

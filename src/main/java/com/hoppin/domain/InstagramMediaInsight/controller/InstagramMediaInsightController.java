@@ -2,6 +2,7 @@ package com.hoppin.domain.InstagramMediaInsight.controller;
 
 import com.hoppin.domain.InstagramConnection.dto.InstagramMediaResponse;
 import com.hoppin.domain.InstagramMediaInsight.service.InstagramMediaInsightService;
+import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +29,8 @@ public class InstagramMediaInsightController {
     public ResponseEntity<ApiResponse<List<InstagramMediaResponse>>> syncInstagramMedia(
             Authentication authentication
     ) {
-        Long musicianId = Long.parseLong(authentication.getName());
+        Musician musician = (Musician) authentication.getPrincipal();
+        Long musicianId = musician.getId();
 
         List<InstagramMediaResponse> response =
                 instagramMediaInsightService.syncMediaInsights(musicianId);
