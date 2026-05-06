@@ -4,7 +4,9 @@ import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PromotionDiagnosisRepository extends JpaRepository<PromotionDiagnosis, Long> {
-    java.util.List<PromotionDiagnosis> findByMusicPromotion_Id(Long promotionId);
+    List<PromotionDiagnosis> findByMusicPromotion_Id(Long promotionId);
 }
