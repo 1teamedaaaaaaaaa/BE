@@ -117,6 +117,8 @@ class AiServiceTest {
         request.setLinkClickCount(5);
         request.setMainPainPoint("링크 클릭이 적다");
         request.setMainResourceConstraint("시간");
+        request.setContentCountIn28Days(5);
+        request.setPeriodLabel("2주");
         return request;
     }
 

@@ -16,7 +16,6 @@ import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.repository.MusicianRepository;
-import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 import com.hoppin.global.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,6 @@ class MusicPromotionServiceTest {
     private final TrackingCodeGenerator trackingCodeGenerator = mock(TrackingCodeGenerator.class);
     private final StreamingCodeGenerator streamingCodeGenerator = mock(StreamingCodeGenerator.class);
     private final StreamingDomainExtractor streamingDomainExtractor = mock(StreamingDomainExtractor.class);
-    private final PromotionDiagnosisRepository promotionDiagnosisRepository = mock(PromotionDiagnosisRepository.class);
 
     private final MusicPromotionService musicPromotionService =
             new MusicPromotionService(
@@ -51,7 +49,6 @@ class MusicPromotionServiceTest {
                     promotionTrackingClickRepository,
                     promotionStreamingClickRepository,
                     promotionStreamingLinkRepository,
-                    promotionDiagnosisRepository,
                     trackingCodeGenerator,
                     streamingCodeGenerator,
                     streamingDomainExtractor
@@ -69,8 +66,8 @@ class MusicPromotionServiceTest {
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 List.of(
-                        new CreateMusicPromotionRequest.CreateStreamingLinkRequest("https://open.spotify.com/track/test"),
-                        new CreateMusicPromotionRequest.CreateStreamingLinkRequest("https://music.youtube.com/watch?v=test")
+                        new CreateMusicPromotionRequest.StreamingLinkRequest("https://open.spotify.com/track/test"),
+                        new CreateMusicPromotionRequest.StreamingLinkRequest("https://music.youtube.com/watch?v=test")
                 ),
                 "https://hoppin-s3-bucket.s3.ap-northeast-2.amazonaws.com/music-promotions/test.jpg",
                 "첫 싱글 발매 홍보입니다."
@@ -98,6 +95,7 @@ class MusicPromotionServiceTest {
                 musicPromotionService.createMusicPromotion(musicianId, request);
 
         assertThat(response).isNotNull();
+        assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/TRACK123");
 
         ArgumentCaptor<MusicPromotion> promotionCaptor = ArgumentCaptor.forClass(MusicPromotion.class);
         verify(musicPromotionRepository).save(promotionCaptor.capture());
@@ -123,7 +121,7 @@ class MusicPromotionServiceTest {
                 "Blue Night",
                 LocalDate.of(2026, 4, 25),
                 List.of(
-                        new CreateMusicPromotionRequest.CreateStreamingLinkRequest("https://musicpeak.site")
+                        new CreateMusicPromotionRequest.StreamingLinkRequest("https://musicpeak.site")
                 ),
                 "https://hoppin-s3-bucket.s3.ap-northeast-2.amazonaws.com/music-promotions/test.jpg",
                 "첫 싱글 발매 홍보입니다."
@@ -184,7 +182,7 @@ class MusicPromotionServiceTest {
         );
 
         when(musicPromotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
-        when(trackingLinkRepository.findFirstByPromotionId(promotionId)).thenReturn(Optional.of(trackingLink));
+        when(trackingLinkRepository.findByPromotionId(promotionId)).thenReturn(List.of(trackingLink));
         when(promotionStreamingLinkRepository.findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId))
                 .thenReturn(List.of(streamingLink1, streamingLink2));
 
@@ -192,16 +190,13 @@ class MusicPromotionServiceTest {
 
         assertThat(response).isNotNull();
         assertThat(response.promotionId()).isEqualTo(promotionId);
+        assertThat(response.trackingCode()).isEqualTo("ABC123");
+        assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/ABC123");
         assertThat(response.activityName()).isEqualTo("첫 싱글 발매 프로모션");
         assertThat(response.songTitle()).isEqualTo("Blue Night");
-        assertThat(response.trackingUrl()).isEqualTo("http://localhost:8080/r/ABC123");
         assertThat(response.streamingLinks()).hasSize(2);
-        assertThat(response.streamingLinks().get(0).url()).isEqualTo("https://open.spotify.com/track/test");
-        assertThat(response.streamingLinks().get(0).clickUrl()).isEqualTo("http://localhost:8080/s/STREAM1");
-        assertThat(response.streamingLinks().get(0).displayOrder()).isEqualTo(1);
-        assertThat(response.streamingLinks().get(1).url()).isEqualTo("https://music.youtube.com/watch?v=test");
-        assertThat(response.streamingLinks().get(1).clickUrl()).isEqualTo("http://localhost:8080/s/STREAM2");
-        assertThat(response.streamingLinks().get(1).displayOrder()).isEqualTo(2);
+        assertThat(response.streamingLinks().get(0).streamingCode()).isEqualTo("STREAM1");
+        assertThat(response.streamingLinks().get(1).streamingCode()).isEqualTo("STREAM2");
     }
 
     @Test
@@ -260,11 +255,11 @@ class MusicPromotionServiceTest {
                 "New Song",
                 LocalDate.of(2026, 4, 27),
                 List.of(
-                        new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(
-                                "http://localhost:8080/s/STREAM1",
+                        new UpdateMusicPromotionRequest.StreamingLinkRequest(
+                                "STREAM1",
                                 "https://open.spotify.com/track/new1"
                         ),
-                        new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(
+                        new UpdateMusicPromotionRequest.StreamingLinkRequest(
                                 null,
                                 "https://music.apple.com/kr/song/new-link"
                         )
@@ -309,7 +304,7 @@ class MusicPromotionServiceTest {
                 "수정된 활동명",
                 "New Song",
                 LocalDate.of(2026, 4, 27),
-                List.of(new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(null, "https://open.spotify.com/track/test")),
+                List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
                 "https://example.com/new.jpg",
                 "수정된 설명"
         );
@@ -345,7 +340,7 @@ class MusicPromotionServiceTest {
                 "수정된 활동명",
                 "New Song",
                 LocalDate.of(2026, 4, 27),
-                List.of(new UpdateMusicPromotionRequest.UpdateStreamingLinkRequest(null, "https://open.spotify.com/track/test")),
+                List.of(new UpdateMusicPromotionRequest.StreamingLinkRequest(null, "https://open.spotify.com/track/test")),
                 "https://example.com/new.jpg",
                 "수정된 설명"
         );
@@ -377,7 +372,6 @@ class MusicPromotionServiceTest {
         ReflectionTestUtils.setField(promotion, "id", promotionId);
 
         when(musicPromotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
-        when(promotionDiagnosisRepository.findByMusicPromotion_Id(promotionId)).thenReturn(List.of());
 
         musicPromotionService.deleteMusicPromotion(musicianId, promotionId);
 
@@ -385,8 +379,6 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository).deleteByPromotionId(promotionId);
         verify(trackingLinkRepository).deleteByPromotionId(promotionId);
         verify(promotionStreamingLinkRepository).deleteByPromotionId(promotionId);
-        verify(promotionDiagnosisRepository).findByMusicPromotion_Id(promotionId);
-        verify(promotionDiagnosisRepository).deleteAll(List.of());
         verify(musicPromotionRepository).delete(promotion);
     }
 
@@ -406,8 +398,6 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository, never()).deleteByPromotionId(anyLong());
         verify(trackingLinkRepository, never()).deleteByPromotionId(anyLong());
         verify(promotionStreamingLinkRepository, never()).deleteByPromotionId(anyLong());
-        verify(promotionDiagnosisRepository, never()).findByMusicPromotion_Id(anyLong());
-        verify(promotionDiagnosisRepository, never()).deleteAll(anyList());
         verify(musicPromotionRepository, never()).delete(any());
     }
 
@@ -441,8 +431,6 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository, never()).deleteByPromotionId(anyLong());
         verify(trackingLinkRepository, never()).deleteByPromotionId(anyLong());
         verify(promotionStreamingLinkRepository, never()).deleteByPromotionId(anyLong());
-        verify(promotionDiagnosisRepository, never()).findByMusicPromotion_Id(anyLong());
-        verify(promotionDiagnosisRepository, never()).deleteAll(anyList());
         verify(musicPromotionRepository, never()).delete(any());
     }
 }

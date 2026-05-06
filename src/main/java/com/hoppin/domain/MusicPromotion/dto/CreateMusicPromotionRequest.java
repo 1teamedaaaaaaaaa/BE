@@ -7,9 +7,10 @@ public record CreateMusicPromotionRequest(
         String activityName,
         String songTitle,
         LocalDate releaseDate,
-        List<CreateStreamingLinkRequest> streamingLinks,
+        List<StreamingLinkRequest> streamingLinks,
         String imageUrl,
         String shortDescription
 ) {
-    public record CreateStreamingLinkRequest(String url) {}
+    public record StreamingLinkRequest(String url) {
+    }
 }

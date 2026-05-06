@@ -10,6 +10,5 @@ public class MyPagePromotionItemResponse {
     private Long promotionId;
     private String title;
     private String coverImageUrl;
-    
     private Long linkClickCount;     // 링크 클릭수
 }

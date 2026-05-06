@@ -18,7 +18,7 @@ public class AnalysisAutomationWebhookClient {
         this.webhookUrl = webhookUrl;
     }
 
-    public void trigger(Long analysisJobId) {
+    public void trigger(Long analysisJobId, Long promotionId) {
         if (webhookUrl == null || webhookUrl.isBlank()) {
             return;
         }
@@ -26,7 +26,7 @@ public class AnalysisAutomationWebhookClient {
         restClient.post()
                 .uri(webhookUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new AnalysisJobWebhookRequest(analysisJobId))
+                .body(new AnalysisJobWebhookRequest(analysisJobId, promotionId))
                 .retrieve()
                 .toBodilessEntity();
     }

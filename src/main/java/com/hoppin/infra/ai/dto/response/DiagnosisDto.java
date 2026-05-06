@@ -6,10 +6,22 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DiagnosisDto {
+
     private String bottleneckType;
+
     private String highlightSection;
-    private int shareCount;
-    private int profileVisitCount;
-    private int linkClickCount;
+
     private String interpretation;
+
+    private Integer contentCount;
+
+    private Integer totalLikeCount;
+
+    private Integer totalCommentCount;
+
+    private Integer trackingLinkClickCount;
+
+    private Integer streamingLinkClickCount;
+
+    private Integer totalLinkClickCount;
 }

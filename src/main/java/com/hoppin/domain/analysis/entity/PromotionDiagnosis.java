@@ -1,6 +1,5 @@
 package com.hoppin.domain.analysis.entity;
 
-
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.analysis.enumtype.DiagnosisStatus;
 import com.hoppin.domain.common.entity.BaseEntity;

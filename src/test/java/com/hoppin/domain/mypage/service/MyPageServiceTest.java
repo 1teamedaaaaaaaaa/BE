@@ -30,8 +30,8 @@ class MyPageServiceTest {
         int page = 0;
 
         List<MyPagePromotionItemResponse> contents = List.of(
-                new MyPagePromotionItemResponse(1L, "봄 시즌 캠페인", "https://example.com/1.jpg", 9L),
-                new MyPagePromotionItemResponse(2L, "월간 리스너 캠페인", "https://example.com/2.jpg", 12L)
+                new MyPagePromotionItemResponse(1L, "봄 시즌 캠페인", "https://example.com/1.jpg", 9L, 88L, 2L),
+                new MyPagePromotionItemResponse(2L, "월간 리스너 캠페인", "https://example.com/2.jpg", 12L, 130L, 4L)
         );
 
         Page<MyPagePromotionItemResponse> mockPage =
@@ -82,7 +82,7 @@ class MyPageServiceTest {
         int page = 1;
 
         List<MyPagePromotionItemResponse> contents = List.of(
-                new MyPagePromotionItemResponse(10L, "앨범 아트 공개", "https://example.com/10.jpg", 29L)
+                new MyPagePromotionItemResponse(10L, "앨범 아트 공개", "https://example.com/10.jpg", 29L, 240L, 16L)
         );
 
         Page<MyPagePromotionItemResponse> mockPage =

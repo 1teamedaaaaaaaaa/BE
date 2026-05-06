@@ -8,12 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/internal/ai")
-public class InternalAiAnalysisController {
+@RequiredArgsConstructor
+public class InternalAiController {
 
-    private final PromotionAnalysisService promotionAnalysisService;
     private final AiService aiService;
+    private final PromotionAnalysisService promotionAnalysisService;
 
     @PostMapping("/analyze/{promotionId}")
     public AnalysisResponseDto analyze(
@@ -21,7 +21,7 @@ public class InternalAiAnalysisController {
             @RequestParam Long analysisJobId
     ) {
         AnalysisRequestDto aiRequest =
-                promotionAnalysisService.buildAnalysisRequest(analysisJobId, promotionId);
+                promotionAnalysisService.buildAnalysisRequestForJob(promotionId, analysisJobId);
 
         AnalysisResponseDto response = aiService.callAi(aiRequest);
 

@@ -18,24 +18,39 @@ public class PromotionDiagnosisMetric extends BaseEntity {
     @JoinColumn(name = "diagnosis_id", nullable = false, unique = true)
     private PromotionDiagnosis promotionDiagnosis;
 
-    @Column(nullable = false)
-    private Integer shareCount;
+    @Column(name = "content_count", nullable = false)
+    private Integer contentCount;
 
-    @Column(nullable = false)
-    private Integer profileVisitCount;
+    @Column(name = "total_like_count", nullable = false)
+    private Integer totalLikeCount;
 
-    @Column(nullable = false)
-    private Integer linkClickCount;
+    @Column(name = "total_comment_count", nullable = false)
+    private Integer totalCommentCount;
+
+    @Column(name = "tracking_link_click_count", nullable = false)
+    private Integer trackingLinkClickCount;
+
+    @Column(name = "streaming_link_click_count", nullable = false)
+    private Integer streamingLinkClickCount;
+
+    @Column(name = "total_link_click_count", nullable = false)
+    private Integer totalLinkClickCount;
 
     @Builder
     private PromotionDiagnosisMetric(
-            Integer shareCount,
-            Integer profileVisitCount,
-            Integer linkClickCount
+            Integer contentCount,
+            Integer totalLikeCount,
+            Integer totalCommentCount,
+            Integer trackingLinkClickCount,
+            Integer streamingLinkClickCount,
+            Integer totalLinkClickCount
     ) {
-        this.shareCount = shareCount;
-        this.profileVisitCount = profileVisitCount;
-        this.linkClickCount = linkClickCount;
+        this.contentCount = contentCount;
+        this.totalLikeCount = totalLikeCount;
+        this.totalCommentCount = totalCommentCount;
+        this.trackingLinkClickCount = trackingLinkClickCount;
+        this.streamingLinkClickCount = streamingLinkClickCount;
+        this.totalLinkClickCount = totalLinkClickCount;
     }
 
     void setPromotionDiagnosis(PromotionDiagnosis promotionDiagnosis) {
