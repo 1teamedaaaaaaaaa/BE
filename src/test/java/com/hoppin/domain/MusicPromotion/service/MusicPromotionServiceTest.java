@@ -377,6 +377,7 @@ class MusicPromotionServiceTest {
         ReflectionTestUtils.setField(promotion, "id", promotionId);
 
         when(musicPromotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
+        when(promotionDiagnosisRepository.findByMusicPromotion_Id(promotionId)).thenReturn(List.of());
 
         musicPromotionService.deleteMusicPromotion(musicianId, promotionId);
 
@@ -384,7 +385,8 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository).deleteByPromotionId(promotionId);
         verify(trackingLinkRepository).deleteByPromotionId(promotionId);
         verify(promotionStreamingLinkRepository).deleteByPromotionId(promotionId);
-        verify(promotionDiagnosisRepository).deleteByMusicPromotion_Id(promotionId);
+        verify(promotionDiagnosisRepository).findByMusicPromotion_Id(promotionId);
+        verify(promotionDiagnosisRepository).deleteAll(List.of());
         verify(musicPromotionRepository).delete(promotion);
     }
 
@@ -404,7 +406,8 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository, never()).deleteByPromotionId(anyLong());
         verify(trackingLinkRepository, never()).deleteByPromotionId(anyLong());
         verify(promotionStreamingLinkRepository, never()).deleteByPromotionId(anyLong());
-        verify(promotionDiagnosisRepository, never()).deleteByMusicPromotion_Id(anyLong());
+        verify(promotionDiagnosisRepository, never()).findByMusicPromotion_Id(anyLong());
+        verify(promotionDiagnosisRepository, never()).deleteAll(anyList());
         verify(musicPromotionRepository, never()).delete(any());
     }
 
@@ -438,7 +441,8 @@ class MusicPromotionServiceTest {
         verify(promotionStreamingClickRepository, never()).deleteByPromotionId(anyLong());
         verify(trackingLinkRepository, never()).deleteByPromotionId(anyLong());
         verify(promotionStreamingLinkRepository, never()).deleteByPromotionId(anyLong());
-        verify(promotionDiagnosisRepository, never()).deleteByMusicPromotion_Id(anyLong());
+        verify(promotionDiagnosisRepository, never()).findByMusicPromotion_Id(anyLong());
+        verify(promotionDiagnosisRepository, never()).deleteAll(anyList());
         verify(musicPromotionRepository, never()).delete(any());
     }
 }
