@@ -64,5 +64,7 @@ jobs:
             docker image rm jinsungzz/hoppin:staging 2>/dev/null || true
             docker system prune -af
 
+            docker network inspect hoppin-net >/dev/null 2>&1 || docker network create hoppin-net
+
             docker pull jinsungzz/hoppin:staging
             docker compose up -d --force-recreate
