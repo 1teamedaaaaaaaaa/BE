@@ -140,7 +140,7 @@ public class MusicPromotionService {
         promotionStreamingClickRepository.deleteByPromotionId(promotionId);
         trackingLinkRepository.deleteByPromotionId(promotionId);
         promotionStreamingLinkRepository.deleteByPromotionId(promotionId);
-        promotionDiagnosisRepository.deleteAll(diagnosisList);
+//        promotionDiagnosisRepository.deleteAll(diagnosisList);
         musicPromotionRepository.delete(promotion);
     }
 
