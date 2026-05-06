@@ -23,11 +23,7 @@ public class MyPageService {
             String keyword,
             int page
     ) {
-        Pageable pageable = PageRequest.of(
-                page,
-                10,
-                Sort.by(Sort.Direction.DESC, "linkClickCount")
-        );
+        Pageable pageable = PageRequest.of(page, 10);
 
         Page<MyPagePromotionItemResponse> result =
                 musicPromotionRepository.findMyPagePromotions(

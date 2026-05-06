@@ -253,4 +253,15 @@ public class PromotionAnalysisService {
 
         return dto;
     }
+
+    public String getPromotionOwnerEmail(Long musicianId, Long promotionId) {
+        MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
+                .orElseThrow(() -> new IllegalArgumentException("프로모션이 존재하지 않습니다."));
+
+        if (!promotion.getMusician().getId().equals(musicianId)) {
+            throw new IllegalArgumentException("본인의 프로모션만 접근 가능합니다.");
+        }
+
+        return promotion.getMusician().getEmail();
+    }
 }

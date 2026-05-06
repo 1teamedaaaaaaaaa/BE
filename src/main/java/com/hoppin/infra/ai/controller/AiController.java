@@ -10,6 +10,7 @@ import com.hoppin.infra.ai.dto.response.AnalysisJobCreateResponse;
 import com.hoppin.infra.ai.dto.response.AnalysisJobStatusResponse;
 import com.hoppin.infra.ai.dto.response.AnalysisResponseDto;
 import com.hoppin.infra.ai.service.AiService;
+import com.hoppin.infra.mail.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +26,11 @@ public class AiController {
     private final AiService aiService;
     private final PromotionAnalysisService promotionAnalysisService;
     private final PromotionAnalysisJobService promotionAnalysisJobService;
+    private final EmailService emailService;
 
     @Operation(
             summary = "AI 분석 요청",
-            description = "JWT의 musicianId와 promotionId, 사용자가 선택한 날짜/고민/제약사항을 기준으로 데이터를 집계한 뒤 AI 분석 결과를 반환하고 DB에 저장합니다."
+            description = "JWT의 musicianId와 promotionId, 사용자가 선택한 날짜/고민/제약사항을 기준으로 데이터를 집계한 뒤 AI 분석 결과를 반환하고 DB에 저장한 후 이메일로 발송합니다."
     )
     @PostMapping("/analyze/{promotionId}")
     public AnalysisResponseDto analyze(
@@ -39,12 +41,23 @@ public class AiController {
         Musician musician = (Musician) authentication.getPrincipal();
         Long musicianId = musician.getId();
 
+        // 1. AI 요청 생성
         AnalysisRequestDto aiRequest =
                 promotionAnalysisService.buildAnalysisRequest(musicianId, promotionId, request);
 
+        // 2. AI 분석
         AnalysisResponseDto response = aiService.callAi(aiRequest);
 
+        // 3. DB 저장
         promotionAnalysisService.saveAnalysisResult(musicianId, promotionId, response);
+
+        // 4. 홍보 주인 이메일 조회
+        String email = promotionAnalysisService.getPromotionOwnerEmail(musicianId, promotionId);
+
+        // 5. 이메일 발송
+        if (email != null && !email.isBlank()) {
+            emailService.sendAnalysisResult(email, response);
+        }
 
         return response;
     }
