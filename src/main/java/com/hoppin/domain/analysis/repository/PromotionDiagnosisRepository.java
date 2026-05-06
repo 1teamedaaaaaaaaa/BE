@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PromotionDiagnosisRepository extends JpaRepository<PromotionDiagnosis, Long> {
-    void deleteByMusicPromotion_Id(Long promotionId);
+    java.util.List<PromotionDiagnosis> findByMusicPromotion_Id(Long promotionId);
 }
