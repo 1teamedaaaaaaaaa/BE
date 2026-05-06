@@ -25,7 +25,8 @@ public class MyPageService {
     ) {
         Pageable pageable = PageRequest.of(
                 page,
-                10
+                10,
+                Sort.by(Sort.Direction.DESC, "linkClickCount")
         );
 
         Page<MyPagePromotionItemResponse> result =
