@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
+const fs = require("fs");
+const path = require("path");
 const { chromium } = require("playwright");
+
+const DEFAULT_SESSION_FILE = path.join(__dirname, "storage", "instagram-session.json");
 
 function parseArgs(argv) {
   const args = {};
@@ -23,6 +27,14 @@ function requireArg(args, name) {
   const value = args[name];
   if (!value || value.trim() === "") {
     throw new Error(`Missing required argument: --${name}`);
+  }
+  return value.trim();
+}
+
+function getOptionalArg(args, name) {
+  const value = args[name];
+  if (!value || value.trim() === "") {
+    return null;
   }
   return value.trim();
 }
@@ -66,6 +78,13 @@ async function closeLoginPopup(page) {
         // ignore
       }
     }
+  }
+}
+
+async function assertNotOnLoginPage(page) {
+  const currentUrl = page.url();
+  if (currentUrl.includes("/accounts/login/")) {
+    throw new Error("Instagram login required or session expired");
   }
 }
 
@@ -121,16 +140,25 @@ async function extractPostData(page, permalink) {
   });
 }
 
-async function crawlPublicInstagram({ username, sinceDate, maxPosts }) {
+async function crawlPublicInstagram({ username, sinceDate, maxPosts, sessionFile, headless }) {
   const browser = await chromium.launch({
-    headless: true
+    headless
   });
 
-  const context = await browser.newContext({
+  const contextOptions = {
     viewport: { width: 1440, height: 1400 },
     userAgent:
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
-  });
+  };
+
+  if (sessionFile) {
+    if (!fs.existsSync(sessionFile)) {
+      throw new Error(`Instagram session file not found: ${sessionFile}`);
+    }
+    contextOptions.storageState = sessionFile;
+  }
+
+  const context = await browser.newContext(contextOptions);
 
   const page = await context.newPage();
   const since = parseTimestamp(sinceDate);
@@ -143,14 +171,20 @@ async function crawlPublicInstagram({ username, sinceDate, maxPosts }) {
     const profileUrl = `https://www.instagram.com/${username}/`;
     await page.goto(profileUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(2500);
+    await assertNotOnLoginPage(page);
     await closeLoginPopup(page);
 
     const links = await collectPostLinks(page, maxPosts);
     const posts = [];
 
+    if (!links.length) {
+      throw new Error("No Instagram post links found on profile page");
+    }
+
     for (const permalink of links) {
       await page.goto(permalink, { waitUntil: "domcontentloaded", timeout: 60000 });
       await page.waitForTimeout(1500);
+      await assertNotOnLoginPage(page);
 
       const extracted = await extractPostData(page, permalink);
       const timestamp = parseTimestamp(extracted.timestamp);
@@ -195,11 +229,15 @@ async function main() {
   const username = requireArg(args, "username");
   const sinceDate = requireArg(args, "since");
   const maxPosts = Number.parseInt(args.maxPosts || "100", 10);
+  const sessionFile = getOptionalArg(args, "sessionFile") || DEFAULT_SESSION_FILE;
+  const headless = getOptionalArg(args, "headless") !== "false";
 
   const result = await crawlPublicInstagram({
     username,
     sinceDate,
-    maxPosts: Number.isNaN(maxPosts) ? 100 : maxPosts
+    maxPosts: Number.isNaN(maxPosts) ? 100 : maxPosts,
+    sessionFile,
+    headless
   });
 
   process.stdout.write(`${JSON.stringify(result)}\n`);

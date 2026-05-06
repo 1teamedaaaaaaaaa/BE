@@ -5,7 +5,8 @@
   "description": "Playwright-based public Instagram crawler for analysis jobs",
   "main": "crawl-instagram.js",
   "scripts": {
-    "crawl": "node crawl-instagram.js"
+    "crawl": "node crawl-instagram.js",
+    "save-session": "node save-instagram-session.js"
   },
   "dependencies": {
     "playwright": "^1.54.1"
