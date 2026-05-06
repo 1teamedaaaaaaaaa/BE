@@ -15,6 +15,7 @@ import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClic
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionChannel;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
+import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.global.exception.ResourceNotFoundException;
@@ -134,11 +135,12 @@ public class MusicPromotionService {
 
         validateOwnership(musicianId, promotion);
 
+        List<PromotionDiagnosis> diagnosisList = promotionDiagnosisRepository.findByMusicPromotion_Id(promotionId);
         promotionTrackingClickRepository.deleteByPromotionId(promotionId);
         promotionStreamingClickRepository.deleteByPromotionId(promotionId);
         trackingLinkRepository.deleteByPromotionId(promotionId);
         promotionStreamingLinkRepository.deleteByPromotionId(promotionId);
-        promotionDiagnosisRepository.deleteByMusicPromotion_Id(promotionId);
+        promotionDiagnosisRepository.deleteAll(diagnosisList);
         musicPromotionRepository.delete(promotion);
     }
 
