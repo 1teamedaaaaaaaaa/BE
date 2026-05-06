@@ -23,10 +23,7 @@ public class MyPageService {
             String keyword,
             int page
     ) {
-        Pageable pageable = PageRequest.of(
-                page,
-                10
-        );
+        Pageable pageable = PageRequest.of(page, 10);
 
         Page<MyPagePromotionItemResponse> result =
                 musicPromotionRepository.findMyPagePromotions(
