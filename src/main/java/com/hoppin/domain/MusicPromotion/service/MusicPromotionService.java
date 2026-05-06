@@ -99,9 +99,11 @@ public class MusicPromotionService {
     }
 
     @Transactional(readOnly = true)
-    public MusicPromotionDetailResponse getMusicPromotion(Long promotionId) {
+    public MusicPromotionDetailResponse getMusicPromotion(Long musicianId, Long promotionId) {
         MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new ResourceNotFoundException("음악 홍보를 찾을 수 없습니다."));
+
+        validateOwnership(musicianId, promotion);
 
         String trackingUrl = trackingLinkRepository.findFirstByPromotionId(promotionId)
                 .map(PromotionTrackingLink::getTrackingUrl)
