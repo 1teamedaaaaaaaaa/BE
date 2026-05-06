@@ -93,9 +93,9 @@ async function collectPostLinks(page, maxPosts) {
 
   for (let i = 0; i < 8 && links.size < maxPosts; i += 1) {
     const hrefs = await page.$$eval("a[href]", (elements) =>
-      elements
-        .map((element) => element.getAttribute("href"))
-        .filter((href) => href && (href.includes("/p/") || href.includes("/reel/")))
+        elements
+            .map((element) => element.getAttribute("href"))
+            .filter((href) => href && (href.includes("/p/") || href.includes("/reel/")))
     );
 
     hrefs.forEach((href) => {
@@ -114,31 +114,48 @@ async function collectPostLinks(page, maxPosts) {
 }
 
 async function extractPostData(page, permalink) {
-  return page.evaluate(() => {
+  return page.evaluate((currentPermalink) => {
     const time = document.querySelector("time");
     const metaDescription = document.querySelector('meta[property="og:description"]')?.content || "";
     const metaTitle = document.querySelector('meta[property="og:title"]')?.content || "";
     const articleText = document.querySelector("article")?.innerText || "";
+    const rawCaption =
+        document.querySelector("article h1")?.textContent?.trim() ||
+        document.querySelector("article ul li div > div > div span")?.textContent?.trim() ||
+        metaDescription ||
+        "";
+
+    const normalizedCaption = (() => {
+      if (!rawCaption) return "";
+
+      if (rawCaption === metaDescription) {
+        const colonIndex = rawCaption.indexOf(":");
+        let cleaned = colonIndex >= 0 ? rawCaption.slice(colonIndex + 1).trim() : rawCaption.trim();
+        cleaned = cleaned.replace(/^["']+/, "").replace(/["']\.\s*$/, "").replace(/["']+\s*$/, "");
+        return cleaned.trim();
+      }
+
+      return rawCaption.trim();
+    })();
     const combinedText = [metaDescription, metaTitle, articleText].join(" ");
 
     const likeMatch =
-      combinedText.match(/([\d.,]+[kKmM]?)\s+likes?/) ||
-      combinedText.match(/liked by [^ ]+ and ([\d.,]+[kKmM]?) others/);
-w
+        combinedText.match(/([\d.,]+[kKmM]?)\s+likes?/) ||
+        combinedText.match(/liked by [^ ]+ and ([\d.,]+[kKmM]?) others/);
     const commentMatch =
-      combinedText.match(/View all ([\d.,]+[kKmM]?) comments?/) ||
-      combinedText.match(/([\d.,]+[kKmM]?) comments?/);
+        combinedText.match(/View all ([\d.,]+[kKmM]?) comments?/) ||
+        combinedText.match(/([\d.,]+[kKmM]?) comments?/);
 
-    const mediaType = permalink.includes("/reel/") ? "REEL" : "POST";
+    const mediaType = currentPermalink.includes("/reel/") ? "REEL" : "POST";
 
     return {
-      caption: "",
+      caption: normalizedCaption,
       timestamp: time?.getAttribute("datetime") || "",
       likeCountRaw: likeMatch ? likeMatch[1] : "0",
       commentCountRaw: commentMatch ? commentMatch[1] : "0",
       mediaType
     };
-  });
+  }, permalink);
 }
 
 async function crawlPublicInstagram({ username, sinceDate, maxPosts, sessionFile, headless }) {
@@ -149,7 +166,7 @@ async function crawlPublicInstagram({ username, sinceDate, maxPosts, sessionFile
   const contextOptions = {
     viewport: { width: 1440, height: 1400 },
     userAgent:
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
   };
 
   if (sessionFile) {
@@ -195,7 +212,7 @@ async function crawlPublicInstagram({ username, sinceDate, maxPosts, sessionFile
       }
 
       if (timestamp < since) {
-        continue;
+        break;
       }
 
       const mediaId = permalink.split("/").filter(Boolean).pop();
