@@ -11,6 +11,8 @@ public class AnalysisCreateRequest {
 
     private LocalDate sinceDate;
 
+    private String instagramUsername;
+
     private String mainPainPoint;
 
     private String mainResourceConstraint;
