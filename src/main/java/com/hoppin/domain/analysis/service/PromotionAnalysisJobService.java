@@ -58,7 +58,7 @@ public class PromotionAnalysisJobService {
                         .build()
         );
 
-        analysisAutomationWebhookClient.trigger(job.getId());
+        analysisAutomationWebhookClient.trigger(job.getId(), promotion.getId());
 
         return new AnalysisJobCreateResponse(job.getId(), job.getStatus().name());
     }
