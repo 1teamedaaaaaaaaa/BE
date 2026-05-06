@@ -16,6 +16,7 @@ import com.hoppin.domain.PromotionTrackingLink.entity.PromotionChannel;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
 import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
+import com.hoppin.domain.analysis.repository.*;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.global.exception.ResourceNotFoundException;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
 import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
-import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,11 +45,16 @@ public class MusicPromotionService {
     private final PromotionTrackingClickRepository promotionTrackingClickRepository;
     private final PromotionStreamingClickRepository promotionStreamingClickRepository;
     private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
-    private final PromotionDiagnosisRepository promotionDiagnosisRepository;
 
     private final TrackingCodeGenerator trackingCodeGenerator;
     private final StreamingCodeGenerator streamingCodeGenerator;
     private final StreamingDomainExtractor streamingDomainExtractor;
+
+    private final PromotionDiagnosisRepository promotionDiagnosisRepository;
+    private final PromotionAnalysisJobRepository promotionAnalysisJobRepository;
+    private final PromotionAnalysisCrawledPostRepository promotionAnalysisCrawledPostRepository;
+    private final PromotionActionPlanRepository promotionActionPlanRepository;
+    private final PromotionDiagnosisMetricRepository promotionDiagnosisMetricRepository;
 
     @Value("${app.backend-base-url}")
     private String backendBaseUrl;
@@ -135,12 +140,24 @@ public class MusicPromotionService {
 
         validateOwnership(musicianId, promotion);
 
-        List<PromotionDiagnosis> diagnosisList = promotionDiagnosisRepository.findByMusicPromotion_Id(promotionId);
+        List<PromotionDiagnosis> diagnosisList =
+                promotionDiagnosisRepository.findByMusicPromotion_Id(promotionId);
+
+        for (PromotionDiagnosis diagnosis : diagnosisList) {
+            promotionActionPlanRepository.deleteByPromotionDiagnosis_DiagnosisId(diagnosis.getDiagnosisId());
+            promotionDiagnosisMetricRepository.deleteByPromotionDiagnosis_DiagnosisId(diagnosis.getDiagnosisId());
+        }
+
+        promotionDiagnosisRepository.deleteAll(diagnosisList);
+
+        promotionAnalysisCrawledPostRepository.deleteByPromotionId(promotionId);
+        promotionAnalysisJobRepository.deleteByPromotionId(promotionId);
+
         promotionTrackingClickRepository.deleteByPromotionId(promotionId);
         promotionStreamingClickRepository.deleteByPromotionId(promotionId);
         trackingLinkRepository.deleteByPromotionId(promotionId);
         promotionStreamingLinkRepository.deleteByPromotionId(promotionId);
-//        promotionDiagnosisRepository.deleteAll(diagnosisList);
+
         musicPromotionRepository.delete(promotion);
     }
 
