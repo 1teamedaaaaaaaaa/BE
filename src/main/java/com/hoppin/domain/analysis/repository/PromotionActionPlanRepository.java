@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PromotionActionPlanRepository extends JpaRepository<PromotionActionPlan, Integer> {
+    void deleteByPromotionDiagnosis_DiagnosisId(Long diagnosisId);
 }
