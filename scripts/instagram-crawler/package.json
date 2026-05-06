@@ -1,0 +1,13 @@
+{
+  "name": "musicpeak-instagram-crawler",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright-based public Instagram crawler for analysis jobs",
+  "main": "crawl-instagram.js",
+  "scripts": {
+    "crawl": "node crawl-instagram.js"
+  },
+  "dependencies": {
+    "playwright": "^1.54.1"
+  }
+}
