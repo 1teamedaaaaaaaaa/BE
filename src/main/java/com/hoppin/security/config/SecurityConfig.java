@@ -59,6 +59,7 @@ public class SecurityConfig {
                                 "/api/auth/token",
                                 "/api/auth/logout",
                                 "/api/auth/success",
+                                "/api/internal/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/music-promotions/**",

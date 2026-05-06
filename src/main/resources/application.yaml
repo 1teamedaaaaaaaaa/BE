@@ -15,7 +15,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -121,6 +121,8 @@ management:
 app:
   backend-base-url: ${BACKEND_BASE_URL}
   frontend-base-url: ${FRONTEND_BASE_URL}
+  internal-api-key: ${APP_INTERNAL_API_KEY}
+  analysis-automation-webhook-url: ${ANALYSIS_AUTOMATION_WEBHOOK_URL:}
 
   mail:
     from: ${MAIL_USERNAME}
