@@ -10,6 +10,4 @@ import org.springframework.stereotype.Repository;
 public interface MusicianSocialAccountRepository extends JpaRepository<MusicianSocialAccount, Long> {
 
     Optional<MusicianSocialAccount> findByProviderAndProviderUserId(AuthProvider provider, String providerUserId);
-
-    Optional<MusicianSocialAccount> findByMusicianId(Long musicianId);
 }

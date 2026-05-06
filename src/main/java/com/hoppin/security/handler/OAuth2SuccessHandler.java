@@ -4,6 +4,8 @@ import com.hoppin.security.jwt.JwtTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,9 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
@@ -56,10 +55,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .httpOnly(true)
                 .secure(true)
 //로컬
-//                .sameSite("Lax")
+                .sameSite("Lax")
 //운영
-               .sameSite("None")
-               .domain(".musicpeak.site")
+//               .sameSite("None")
+//               .domain(".musicpeak.site")
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .build();
