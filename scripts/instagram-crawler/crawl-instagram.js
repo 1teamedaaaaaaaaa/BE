@@ -95,10 +95,16 @@ async function collectPostLinks(page, maxPosts) {
     const hrefs = await page.$$eval("a[href]", (elements) =>
       elements
         .map((element) => element.getAttribute("href"))
-        .filter((href) => href && (/^\/p\//.test(href) || /^\/reel\//.test(href)))
+        .filter((href) => href && (href.includes("/p/") || href.includes("/reel/")))
     );
 
-    hrefs.forEach((href) => links.add(`https://www.instagram.com${href}`));
+    hrefs.forEach((href) => {
+      if (href.startsWith("http://") || href.startsWith("https://")) {
+        links.add(href);
+        return;
+      }
+      links.add(`https://www.instagram.com${href}`);
+    });
 
     await page.mouse.wheel(0, 2500);
     await page.waitForTimeout(1200);
@@ -113,17 +119,12 @@ async function extractPostData(page, permalink) {
     const metaDescription = document.querySelector('meta[property="og:description"]')?.content || "";
     const metaTitle = document.querySelector('meta[property="og:title"]')?.content || "";
     const articleText = document.querySelector("article")?.innerText || "";
-    const caption =
-      document.querySelector("article h1")?.textContent?.trim() ||
-      document.querySelector("article ul li div > div > div span")?.textContent?.trim() ||
-      "";
-
     const combinedText = [metaDescription, metaTitle, articleText].join(" ");
 
     const likeMatch =
       combinedText.match(/([\d.,]+[kKmM]?)\s+likes?/) ||
       combinedText.match(/liked by [^ ]+ and ([\d.,]+[kKmM]?) others/);
-
+w
     const commentMatch =
       combinedText.match(/View all ([\d.,]+[kKmM]?) comments?/) ||
       combinedText.match(/([\d.,]+[kKmM]?) comments?/);
@@ -131,7 +132,7 @@ async function extractPostData(page, permalink) {
     const mediaType = permalink.includes("/reel/") ? "REEL" : "POST";
 
     return {
-      caption,
+      caption: "",
       timestamp: time?.getAttribute("datetime") || "",
       likeCountRaw: likeMatch ? likeMatch[1] : "0",
       commentCountRaw: commentMatch ? commentMatch[1] : "0",
