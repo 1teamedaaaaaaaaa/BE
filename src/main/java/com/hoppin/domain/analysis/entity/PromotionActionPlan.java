@@ -27,7 +27,7 @@ public class PromotionActionPlan extends BaseEntity {
     @Column(length = 1000, nullable = false)
     private String reason;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 300, nullable = false)
     private String metric;
 
     @Column(length = 1000, nullable = false)

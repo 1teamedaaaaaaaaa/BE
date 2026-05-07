@@ -25,4 +25,9 @@ public class PromotionStreamingClickRepositoryJpaImpl implements PromotionStream
     public void deleteByStreamingLinkId(Long streamingLinkId) {
         promotionStreamingClickJpaRepository.deleteByStreamingLinkId(streamingLinkId);
     }
+
+    @Override
+    public long countByStreamingLinkId(Long streamingLinkId) {
+        return promotionStreamingClickJpaRepository.countByStreamingLinkId(streamingLinkId);
+    }
 }

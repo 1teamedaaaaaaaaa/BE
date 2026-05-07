@@ -2,6 +2,10 @@ package com.hoppin.domain.analysis.service;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
+import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
+import com.hoppin.domain.PromotionStreamingLink.repository.PromotionStreamingLinkRepository;
+import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
+import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
 import com.hoppin.domain.analysis.entity.PromotionActionPlan;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisCrawledPost;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
@@ -32,6 +36,11 @@ public class PromotionAnalysisService {
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionAnalysisJobRepository promotionAnalysisJobRepository;
     private final PromotionAnalysisCrawledPostRepository promotionAnalysisCrawledPostRepository;
+
+    private final PromotionTrackingLinkRepository promotionTrackingLinkRepository;
+    private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
+    private final PromotionTrackingClickRepository promotionTrackingClickRepository;
+    private final PromotionStreamingClickRepository promotionStreamingClickRepository;
 
     /**
      * n8n internal API용
@@ -251,21 +260,44 @@ public class PromotionAnalysisService {
     }
 
     private AnalysisRequestDto.LinkClickSummary buildLinkClickSummary(MusicPromotion musicPromotion) {
-        /*
-         * TODO:
-         * 현재는 클릭 수를 0으로 넣는 임시 버전.
-         * PromotionTrackingClickRepository, PromotionStreamingClickRepository를 주입하면
-         * 여기서 실제 클릭 수를 계산해서 넣으면 됨.
-         */
-        List<AnalysisRequestDto.TrackingLinkClickSummary> trackingLinks = List.of();
-        List<AnalysisRequestDto.StreamingLinkClickSummary> streamingLinks = List.of();
+        Long promotionId = musicPromotion.getId();
 
-        int trackingTotal = trackingLinks.stream()
-                .mapToInt(AnalysisRequestDto.TrackingLinkClickSummary::getClickCount)
+        List<AnalysisRequestDto.TrackingLinkClickSummary> trackingLinks =
+                promotionTrackingLinkRepository.findByPromotionId(promotionId)
+                        .stream()
+                        .map(link -> {
+                            long clickCount = promotionTrackingClickRepository
+                                    .countByTrackingLinkId(link.getId());
+
+                            return AnalysisRequestDto.TrackingLinkClickSummary.builder()
+                                    .channel(link.getChannel().name())
+                                    .url(link.getTrackingUrl())
+                                    .clickCount(clickCount)
+                                    .build();
+                        })
+                        .toList();
+
+        List<AnalysisRequestDto.StreamingLinkClickSummary> streamingLinks =
+                promotionStreamingLinkRepository.findByPromotionIdAndActiveTrueOrderByDisplayOrderAsc(promotionId)
+                        .stream()
+                        .map(link -> {
+                            long clickCount = promotionStreamingClickRepository
+                                    .countByStreamingLinkId(link.getId());
+
+                            return AnalysisRequestDto.StreamingLinkClickSummary.builder()
+                                    .streamingCode(link.getStreamingCode())
+                                    .url(link.getOriginalUrl())
+                                    .clickCount(clickCount)
+                                    .build();
+                        })
+                        .toList();
+
+        long trackingTotal = trackingLinks.stream()
+                .mapToLong(AnalysisRequestDto.TrackingLinkClickSummary::getClickCount)
                 .sum();
 
-        int streamingTotal = streamingLinks.stream()
-                .mapToInt(AnalysisRequestDto.StreamingLinkClickSummary::getClickCount)
+        long streamingTotal = streamingLinks.stream()
+                .mapToLong(AnalysisRequestDto.StreamingLinkClickSummary::getClickCount)
                 .sum();
 
         return AnalysisRequestDto.LinkClickSummary.builder()

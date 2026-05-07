@@ -8,4 +8,6 @@ public interface PromotionStreamingClickJpaRepository extends JpaRepository<Prom
     void deleteByPromotionId(Long promotionId);
 
     void deleteByStreamingLinkId(Long streamingLinkId);
+
+    long countByStreamingLinkId(Long streamingLinkId);
 }

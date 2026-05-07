@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "promotion_streaming_link")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PromotionStreamingLink {
+public class PromotionStreamingLink{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -9,4 +9,6 @@ public interface PromotionStreamingClickRepository {
     void deleteByPromotionId(Long promotionId);
 
     void deleteByStreamingLinkId(Long streamingLinkId);
+
+    long countByStreamingLinkId(Long streamingLinkId);
 }

@@ -29,16 +29,16 @@ public class AnalysisRequestDto {
     @Getter
     @Builder
     public static class InstagramSummary {
-        private int contentCount;
-        private int totalLikeCount;
-        private int totalCommentCount;
+        private long contentCount;
+        private long totalLikeCount;
+        private long totalCommentCount;
     }
 
     @Getter
     @Builder
     public static class LinkClickSummary {
-        private int trackingLinkTotalClickCount;
-        private int streamingLinkTotalClickCount;
+        private long trackingLinkTotalClickCount;
+        private long streamingLinkTotalClickCount;
 
         private List<TrackingLinkClickSummary> trackingLinks;
         private List<StreamingLinkClickSummary> streamingLinks;
@@ -49,7 +49,7 @@ public class AnalysisRequestDto {
     public static class TrackingLinkClickSummary {
         private String channel;
         private String url;
-        private int clickCount;
+        private long clickCount;
     }
 
     @Getter
@@ -57,7 +57,7 @@ public class AnalysisRequestDto {
     public static class StreamingLinkClickSummary {
         private String streamingCode;
         private String url;
-        private int clickCount;
+        private long clickCount;
     }
 
     @Getter
@@ -69,7 +69,7 @@ public class AnalysisRequestDto {
         private String permalink;
         private String timestamp;
 
-        private int likeCount;
-        private int commentCount;
+        private long likeCount;
+        private long commentCount;
     }
 }
