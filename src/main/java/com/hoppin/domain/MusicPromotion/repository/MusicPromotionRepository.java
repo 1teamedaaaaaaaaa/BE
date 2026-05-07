@@ -25,4 +25,9 @@ public interface MusicPromotionRepository {
             String keyword,
             Pageable pageable
     );
+
+    Optional<MyPagePromotionItemResponse> findMyPagePromotion(
+            Long musicianId,
+            Long promotionId
+    );
 }

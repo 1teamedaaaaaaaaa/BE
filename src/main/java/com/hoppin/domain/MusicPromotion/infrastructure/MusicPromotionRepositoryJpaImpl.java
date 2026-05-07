@@ -59,6 +59,16 @@ public class MusicPromotionRepositoryJpaImpl implements MusicPromotionRepository
     }
 
     @Override
+    public Optional<MyPagePromotionItemResponse> findMyPagePromotion(
+            Long musicianId,
+            Long promotionId
+    ) {
+        return musicPromotionJpaRepository.findById(promotionId)
+                .filter(promotion -> promotion.getMusician().getId().equals(musicianId))
+                .map(this::toMyPagePromotionItemResponse);
+    }
+
+    @Override
     public void delete(MusicPromotion promotion) {
         musicPromotionJpaRepository.delete(promotion);
     }
