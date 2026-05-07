@@ -1,13 +1,13 @@
 package com.hoppin.infra.ai.controller;
 
-import com.hoppin.domain.analysis.service.PromotionAnalysisJobService;
+import com.hoppin.infra.crawling.service.PromotionAnalysisJobService;
 import com.hoppin.domain.analysis.service.PromotionAnalysisService;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.infra.ai.dto.request.AnalysisCreateRequest;
 import com.hoppin.infra.ai.dto.request.AnalysisRequestDto;
-import com.hoppin.infra.ai.dto.response.AnalysisCrawlerResultResponse;
-import com.hoppin.infra.ai.dto.response.AnalysisJobCreateResponse;
-import com.hoppin.infra.ai.dto.response.AnalysisJobStatusResponse;
+import com.hoppin.infra.crawling.dto.response.AnalysisCrawlerResultResponse;
+import com.hoppin.infra.crawling.dto.response.AnalysisJobCreateResponse;
+import com.hoppin.infra.crawling.dto.response.AnalysisJobStatusResponse;
 import com.hoppin.infra.ai.dto.response.AnalysisResponseDto;
 import com.hoppin.infra.ai.service.AiService;
 import io.swagger.v3.oas.annotations.Operation;
