@@ -84,6 +84,7 @@ public class PromotionAnalysisJobService {
                 job.getMainPainPoint(),
                 job.getMainResourceConstraint(),
                 job.getContentCount(),
+                job.getFollowerCount(),
                 job.getTotalLikeCount(),
                 job.getTotalCommentCount(),
                 job.getStartedAt(),
@@ -138,6 +139,7 @@ public class PromotionAnalysisJobService {
 
         job.updateCrawlerSummary(
                 request.getContentCount(),
+                request.getFollowerCount(),
                 request.getTotalLikeCount(),
                 request.getTotalCommentCount()
         );
@@ -177,6 +179,7 @@ public class PromotionAnalysisJobService {
         return new AnalysisCrawlerResultResponse(
                 job.getId(),
                 job.getContentCount(),
+                job.getFollowerCount(),
                 job.getTotalLikeCount(),
                 job.getTotalCommentCount(),
                 posts

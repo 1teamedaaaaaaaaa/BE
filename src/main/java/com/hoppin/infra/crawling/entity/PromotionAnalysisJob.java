@@ -60,6 +60,9 @@ public class PromotionAnalysisJob extends BaseEntity {
     @Column(name = "content_count")
     private Integer contentCount;
 
+    @Column(name = "follower_count")
+    private Integer followerCount;
+
     @Column(name = "total_like_count")
     private Integer totalLikeCount;
 
@@ -99,10 +102,12 @@ public class PromotionAnalysisJob extends BaseEntity {
 
     public void updateCrawlerSummary(
             int contentCount,
+            int followerCount,
             int totalLikeCount,
             int totalCommentCount
     ) {
         this.contentCount = contentCount;
+        this.followerCount = followerCount;
         this.totalLikeCount = totalLikeCount;
         this.totalCommentCount = totalCommentCount;
     }

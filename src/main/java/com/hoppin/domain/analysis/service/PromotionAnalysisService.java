@@ -125,6 +125,7 @@ public class PromotionAnalysisService {
                 .mainResourceConstraint(job.getMainResourceConstraint())
                 .instagramSummary(AnalysisRequestDto.InstagramSummary.builder()
                         .contentCount(contentCount)
+                        .followerCount(job.getFollowerCount() == null ? 0 : job.getFollowerCount())
                         .totalLikeCount(totalLikeCount)
                         .totalCommentCount(totalCommentCount)
                         .build())
