@@ -62,8 +62,6 @@ public class SecurityConfig {
                                 "/api/internal/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/music-promotions/**",
-                                "/api/musicians/me/instagram/media",
                                 "/instagram/oauth/callback",
                                 "/r/**",
                                 "/s/**"
