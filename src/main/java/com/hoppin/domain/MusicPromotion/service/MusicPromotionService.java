@@ -20,12 +20,12 @@ import com.hoppin.domain.analysis.repository.*;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.repository.MusicianRepository;
 import com.hoppin.global.exception.ResourceNotFoundException;
+import com.hoppin.infra.crawling.repository.PromotionAnalysisCrawledPostRepository;
+import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.hoppin.domain.PromotionStreamingClick.repository.PromotionStreamingClickRepository;
-import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
 
 import java.util.HashMap;
 import java.util.HashSet;

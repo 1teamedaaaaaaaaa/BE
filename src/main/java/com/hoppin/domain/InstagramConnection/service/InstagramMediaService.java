@@ -1,8 +1,8 @@
 package com.hoppin.domain.InstagramConnection.service;
 
-import com.hoppin.domain.Instagram.client.InstagramGraphClient;
-import com.hoppin.domain.Instagram.dto.InstagramInsightApiResponse;
-import com.hoppin.domain.Instagram.dto.InstagramMediaListApiResponse;
+import com.hoppin.infra.Instagram.client.InstagramGraphClient;
+import com.hoppin.infra.Instagram.dto.InstagramInsightApiResponse;
+import com.hoppin.infra.Instagram.dto.InstagramMediaListApiResponse;
 import com.hoppin.domain.InstagramConnection.dto.InstagramMediaResponse;
 import com.hoppin.domain.InstagramConnection.entity.InstagramConnection;
 import com.hoppin.domain.InstagramConnection.repository.InstagramConnectionRepository;
