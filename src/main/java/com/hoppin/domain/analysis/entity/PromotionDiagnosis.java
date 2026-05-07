@@ -43,6 +43,9 @@ public class PromotionDiagnosis extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime diagnosedAt;
 
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
+
     @OneToOne(mappedBy = "promotionDiagnosis", cascade = CascadeType.ALL, orphanRemoval = true)
     private PromotionDiagnosisMetric diagnosisMetric;
 
@@ -77,5 +80,13 @@ public class PromotionDiagnosis extends BaseEntity {
     public void addActionPlan(PromotionActionPlan actionPlan) {
         this.actionPlans.add(actionPlan);
         actionPlan.setPromotionDiagnosis(this);
+    }
+
+    public boolean isUnread() {
+        return this.readAt == null;
+    }
+
+    public void markRead() {
+        this.readAt = LocalDateTime.now();
     }
 }

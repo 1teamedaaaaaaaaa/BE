@@ -6,6 +6,8 @@ public interface PromotionStreamingClickRepository {
 
     PromotionStreamingClick save(PromotionStreamingClick streamingClick);
 
+    long countByPromotionId(Long promotionId);
+
     void deleteByPromotionId(Long promotionId);
 
     void deleteByStreamingLinkId(Long streamingLinkId);
