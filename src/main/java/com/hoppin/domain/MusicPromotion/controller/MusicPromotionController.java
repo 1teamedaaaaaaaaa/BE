@@ -49,14 +49,10 @@ public class MusicPromotionController {
     )
     @GetMapping("/{promotionId}")
     public ResponseEntity<ApiResponse<MusicPromotionDetailResponse>> getMusicPromotion(
-            Authentication authentication,
             @PathVariable Long promotionId
     ) {
-        Musician musician = (Musician) authentication.getPrincipal();
-        Long musicianId = musician.getId();
-
         MusicPromotionDetailResponse response =
-                musicPromotionService.getMusicPromotion(musicianId, promotionId);
+                musicPromotionService.getMusicPromotion(promotionId);
 
         return ResponseEntity.ok(ApiResponse.success(response, "음악 홍보를 조회했습니다."));
     }
