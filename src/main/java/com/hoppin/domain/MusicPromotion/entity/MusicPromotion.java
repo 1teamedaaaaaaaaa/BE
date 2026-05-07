@@ -40,8 +40,7 @@ public class MusicPromotion extends BaseEntity {
     @Column(name = "short_description", nullable = false, length = 255)
     private String shortDescription;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "tracking_link_id")
+    @OneToOne(mappedBy = "promotion", fetch = FetchType.LAZY)
     private PromotionTrackingLink promotionTrackingLink;
 
     public MusicPromotion(
