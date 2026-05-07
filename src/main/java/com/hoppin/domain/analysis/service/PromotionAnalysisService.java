@@ -10,6 +10,7 @@ import com.hoppin.domain.analysis.entity.PromotionDiagnosisMetric;
 import com.hoppin.domain.analysis.enumtype.DiagnosisStatus;
 import com.hoppin.infra.crawling.repository.PromotionAnalysisCrawledPostRepository;
 import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
+import com.hoppin.domain.mypage.service.MyPageSseService;
 import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 import com.hoppin.infra.ai.dto.request.AnalysisRequestDto;
 import com.hoppin.infra.ai.dto.response.ActionCardDto;
@@ -32,6 +33,7 @@ public class PromotionAnalysisService {
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionAnalysisJobRepository promotionAnalysisJobRepository;
     private final PromotionAnalysisCrawledPostRepository promotionAnalysisCrawledPostRepository;
+    private final MyPageSseService myPageSseService;
 
     /**
      * n8n internal API용
@@ -169,6 +171,7 @@ public class PromotionAnalysisService {
         if (diagnosis.isUnread()) {
             diagnosis.markRead();
         }
+        myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
     }
 
     /**
@@ -223,7 +226,12 @@ public class PromotionAnalysisService {
             }
         }
 
-        return promotionDiagnosisRepository.save(diagnosis).getDiagnosisId();
+        Long diagnosisId = promotionDiagnosisRepository.save(diagnosis).getDiagnosisId();
+        myPageSseService.publishPromotionUpdatedAfterCommit(
+                musicPromotion.getMusician().getId(),
+                musicPromotion.getId()
+        );
+        return diagnosisId;
     }
 
     private void validateOwner(MusicPromotion musicPromotion, Long musicianId) {
