@@ -146,6 +146,11 @@ instagram:
 
 server:
   forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
 
 cloud:
   aws:
