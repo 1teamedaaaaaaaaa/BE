@@ -4,6 +4,7 @@ import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
 import com.hoppin.domain.PromotionTrackingLink.entity.PromotionTrackingLink;
 import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
+import com.hoppin.domain.mypage.service.MyPageSseService;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisCrawledPost;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
 import com.hoppin.infra.crawling.enumtype.AnalysisJobStatus;
@@ -35,6 +36,7 @@ public class PromotionAnalysisJobService {
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionTrackingLinkRepository promotionTrackingLinkRepository;
     private final AnalysisAutomationWebhookClient analysisAutomationWebhookClient;
+    private final MyPageSseService myPageSseService;
 
     public AnalysisJobCreateResponse createJob(Long musicianId, Long promotionId, AnalysisCreateRequest request) {
         validateCreateRequest(request);
@@ -59,6 +61,7 @@ public class PromotionAnalysisJobService {
         );
 
         analysisAutomationWebhookClient.trigger(job.getId(), promotion.getId());
+        myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
 
         return new AnalysisJobCreateResponse(job.getId(), job.getStatus().name());
     }
@@ -139,18 +142,21 @@ public class PromotionAnalysisJobService {
                 request.getTotalCommentCount()
         );
         job.markCompleted();
+        myPageSseService.publishPromotionUpdatedAfterCommit(job.getMusician().getId(), job.getPromotion().getId());
     }
 
     public void markJobRunning(Long analysisJobId) {
         PromotionAnalysisJob job = promotionAnalysisJobRepository.findById(analysisJobId)
                 .orElseThrow(() -> new ResourceNotFoundException("분석 작업이 존재하지 않습니다."));
         job.markRunning();
+        myPageSseService.publishPromotionUpdatedAfterCommit(job.getMusician().getId(), job.getPromotion().getId());
     }
 
     public void markJobFailed(Long analysisJobId, String errorMessage) {
         PromotionAnalysisJob job = promotionAnalysisJobRepository.findById(analysisJobId)
                 .orElseThrow(() -> new ResourceNotFoundException("분석 작업이 존재하지 않습니다."));
         job.markFailed(errorMessage);
+        myPageSseService.publishPromotionUpdatedAfterCommit(job.getMusician().getId(), job.getPromotion().getId());
     }
 
     @Transactional(readOnly = true)

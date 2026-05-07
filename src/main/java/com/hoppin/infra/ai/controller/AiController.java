@@ -10,9 +10,11 @@ import com.hoppin.infra.crawling.dto.response.AnalysisJobCreateResponse;
 import com.hoppin.infra.crawling.dto.response.AnalysisJobStatusResponse;
 import com.hoppin.infra.ai.dto.response.AnalysisResponseDto;
 import com.hoppin.infra.ai.service.AiService;
+import com.hoppin.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,5 +88,19 @@ public class AiController {
     ) {
         Musician musician = (Musician) authentication.getPrincipal();
         return promotionAnalysisJobService.getCrawlerResult(musician.getId(), analysisJobId);
+    }
+
+    @Operation(
+            summary = "최신 AI 진단 결과 읽음 처리",
+            description = "해당 프로모션의 최신 진단 결과를 읽음 처리하여 마이페이지 unread 표시를 제거합니다."
+    )
+    @PatchMapping("/promotions/{promotionId}/diagnosis/read")
+    public ResponseEntity<ApiResponse<Void>> markDiagnosisAsRead(
+            Authentication authentication,
+            @PathVariable Long promotionId
+    ) {
+        Musician musician = (Musician) authentication.getPrincipal();
+        promotionAnalysisService.markLatestDiagnosisAsRead(musician.getId(), promotionId);
+        return ResponseEntity.ok(ApiResponse.success(null, "최신 진단 결과를 읽음 처리했습니다."));
     }
 }

@@ -41,4 +41,12 @@ public class MyPageService {
                 result.hasNext()
         );
     }
+
+    public MyPagePromotionItemResponse getMyPromotionItem(
+            Long musicianId,
+            Long promotionId
+    ) {
+        return musicPromotionRepository.findMyPagePromotion(musicianId, promotionId)
+                .orElseThrow(() -> new IllegalArgumentException("프로모션이 존재하지 않거나 접근 권한이 없습니다. id=" + promotionId));
+    }
 }

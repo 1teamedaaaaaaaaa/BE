@@ -17,6 +17,11 @@ public class PromotionStreamingClickRepositoryJpaImpl implements PromotionStream
     }
 
     @Override
+    public long countByPromotionId(Long promotionId) {
+        return promotionStreamingClickJpaRepository.countByPromotionId(promotionId);
+    }
+
+    @Override
     public void deleteByPromotionId(Long promotionId) {
         promotionStreamingClickJpaRepository.deleteByPromotionId(promotionId);
     }

@@ -1,5 +1,6 @@
 package com.hoppin.domain.mypage.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,6 +11,16 @@ public class MyPagePromotionItemResponse {
     private Long promotionId;
     private String title;
     private String coverImageUrl;
+    private LocalDateTime createdAt;
+    private Long totalTrackingLinkClickCount;
+    private Long totalStreamingLinkClickCount;
+    private AnalysisSummary analysis;
 
-    private Long linkClickCount;     // 링크 클릭수
+    @Getter
+    @AllArgsConstructor
+    public static class AnalysisSummary {
+        private String status;
+        private String label;
+        private boolean hasUnreadResult;
+    }
 }

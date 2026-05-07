@@ -3,11 +3,14 @@ package com.hoppin.domain.mypage.controller;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.mypage.dto.MyPagePromotionPageResponse;
 import com.hoppin.domain.mypage.service.MyPageService;
+import com.hoppin.domain.mypage.service.MyPageSseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Tag(name = "MyPage", description = "마이페이지 API")
 @RestController
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class MyPageController {
 
     private final MyPageService myPageService;
+    private final MyPageSseService myPageSseService;
 
     @Operation(
             summary = "내 프로모션 목록 조회",
@@ -35,5 +39,15 @@ public class MyPageController {
                 keyword,
                 page
         );
+    }
+
+    @Operation(
+            summary = "마이페이지 프로모션 실시간 스트림 구독",
+            description = "로그인한 뮤지션의 프로모션 진단 상태 변화를 SSE로 구독합니다."
+    )
+    @GetMapping(value = "/promotions/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribePromotionUpdates(Authentication authentication) {
+        Musician musician = (Musician) authentication.getPrincipal();
+        return myPageSseService.subscribe(musician.getId());
     }
 }

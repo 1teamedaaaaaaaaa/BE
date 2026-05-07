@@ -14,6 +14,7 @@ import com.hoppin.domain.analysis.entity.PromotionDiagnosisMetric;
 import com.hoppin.domain.analysis.enumtype.DiagnosisStatus;
 import com.hoppin.infra.crawling.repository.PromotionAnalysisCrawledPostRepository;
 import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
+import com.hoppin.domain.mypage.service.MyPageSseService;
 import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 import com.hoppin.infra.ai.dto.request.AnalysisRequestDto;
 import com.hoppin.infra.ai.dto.response.ActionCardDto;
@@ -36,6 +37,7 @@ public class PromotionAnalysisService {
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionAnalysisJobRepository promotionAnalysisJobRepository;
     private final PromotionAnalysisCrawledPostRepository promotionAnalysisCrawledPostRepository;
+    private final MyPageSseService myPageSseService;
 
     private final PromotionTrackingLinkRepository promotionTrackingLinkRepository;
     private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
@@ -162,6 +164,25 @@ public class PromotionAnalysisService {
         return saveAnalysisResultInternal(musicPromotion, responseDto);
     }
 
+    public void markLatestDiagnosisAsRead(
+            Long musicianId,
+            Long promotionId
+    ) {
+        MusicPromotion musicPromotion = musicPromotionRepository.findById(promotionId)
+                .orElseThrow(() -> new IllegalArgumentException("프로모션이 존재하지 않습니다. id=" + promotionId));
+
+        validateOwner(musicPromotion, musicianId);
+
+        PromotionDiagnosis diagnosis = promotionDiagnosisRepository
+                .findTopByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId)
+                .orElseThrow(() -> new IllegalArgumentException("진단 결과가 존재하지 않습니다. promotionId=" + promotionId));
+
+        if (diagnosis.isUnread()) {
+            diagnosis.markRead();
+        }
+        myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
+    }
+
     /**
      * AI 분석 결과 공통 저장 로직
      */
@@ -214,7 +235,12 @@ public class PromotionAnalysisService {
             }
         }
 
-        return promotionDiagnosisRepository.save(diagnosis).getDiagnosisId();
+        Long diagnosisId = promotionDiagnosisRepository.save(diagnosis).getDiagnosisId();
+        myPageSseService.publishPromotionUpdatedAfterCommit(
+                musicPromotion.getMusician().getId(),
+                musicPromotion.getId()
+        );
+        return diagnosisId;
     }
 
     private void validateOwner(MusicPromotion musicPromotion, Long musicianId) {
