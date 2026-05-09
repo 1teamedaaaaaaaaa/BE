@@ -63,7 +63,7 @@ public class PromotionAnalysisPageQueryService {
                         .trackingClickCount(trackingClickCount)
                         .streamingClickCount(streamingClickCount)
                         .build())
-                .diagnosisSection(toDiagnosisSection(promotionId))
+                .diagnosis(toDiagnosisList(promotionId))
                 .build();
     }
 
@@ -91,19 +91,14 @@ public class PromotionAnalysisPageQueryService {
                 .toList();
     }
 
-    private PromotionAnalysisPageResponse.DiagnosisSection toDiagnosisSection(Long promotionId) {
+    private List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> toDiagnosisList(Long promotionId) {
         List<PromotionDiagnosis> diagnoses =
                 promotionDiagnosisRepository.findByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId);
 
         if (!diagnoses.isEmpty()) {
-            return PromotionAnalysisPageResponse.DiagnosisSection.builder()
-                    .status("COMPLETED")
-                    .diagnosisCards(
-                            diagnoses.stream()
-                                    .map(this::toDiagnosisCard)
-                                    .toList()
-                    )
-                    .build();
+            return diagnoses.stream()
+                    .map(this::toCompletedDiagnosis)
+                    .toList();
         }
 
         PromotionAnalysisJob latestJob = promotionAnalysisJobRepository
@@ -111,33 +106,21 @@ public class PromotionAnalysisPageQueryService {
                 .orElse(null);
 
         if (latestJob == null) {
-            return PromotionAnalysisPageResponse.DiagnosisSection.builder()
-                    .status("NOT_STARTED")
-                    .diagnosisCards(List.of())
-                    .build();
+            return List.of(toEmptyDiagnosis("PENDING"));
         }
 
         if (latestJob.getStatus() == AnalysisJobStatus.RUNNING) {
-            return PromotionAnalysisPageResponse.DiagnosisSection.builder()
-                    .status("RUNNING")
-                    .diagnosisCards(List.of())
-                    .build();
+            return List.of(toEmptyDiagnosis("RUNNING"));
         }
 
         if (latestJob.getStatus() == AnalysisJobStatus.FAILED) {
-            return PromotionAnalysisPageResponse.DiagnosisSection.builder()
-                    .status("FAILED")
-                    .diagnosisCards(List.of())
-                    .build();
+            return List.of(toEmptyDiagnosis("FAILED"));
         }
 
-        return PromotionAnalysisPageResponse.DiagnosisSection.builder()
-                .status("NOT_STARTED")
-                .diagnosisCards(List.of())
-                .build();
+        return List.of(toEmptyDiagnosis("PENDING"));
     }
 
-    private PromotionAnalysisPageResponse.DiagnosisCard toDiagnosisCard(PromotionDiagnosis diagnosis) {
+    private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toCompletedDiagnosis(PromotionDiagnosis diagnosis) {
         PromotionActionPlan firstAction = diagnosis.getActionPlans()
                 .stream()
                 .min(Comparator.comparing(
@@ -146,7 +129,8 @@ public class PromotionAnalysisPageQueryService {
                 ))
                 .orElse(null);
 
-        return PromotionAnalysisPageResponse.DiagnosisCard.builder()
+        return PromotionAnalysisPageResponse.AnalysisDiagnosisItem.builder()
+                .status("COMPLETED")
                 .diagnosisId(diagnosis.getDiagnosisId())
                 .diagnosedDate(formatDate(diagnosis.getDiagnosedAt()))
                 .bottleneckType(defaultIfBlank(diagnosis.getBottleneckType(), "진단 결과"))
@@ -155,6 +139,18 @@ public class PromotionAnalysisPageQueryService {
                         ? "바로 적용할 액션을 확인해보세요."
                         : defaultIfBlank(firstAction.getTitle(), "바로 적용할 액션을 확인해보세요."))
                 .unread(diagnosis.isUnread())
+                .build();
+    }
+
+    private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toEmptyDiagnosis(String status) {
+        return PromotionAnalysisPageResponse.AnalysisDiagnosisItem.builder()
+                .status(status)
+                .diagnosisId(null)
+                .diagnosedDate(null)
+                .bottleneckType(null)
+                .headline(null)
+                .actionTitle(null)
+                .unread(false)
                 .build();
     }
 
