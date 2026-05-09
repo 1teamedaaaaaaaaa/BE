@@ -7,10 +7,15 @@ import com.hoppin.domain.mypage.service.MyPageSseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.concurrent.TimeUnit;
 
 @Tag(name = "MyPage", description = "마이페이지 API")
 @RestController
@@ -46,8 +51,16 @@ public class MyPageController {
             description = "로그인한 뮤지션의 프로모션 진단 상태 변화를 SSE로 구독합니다."
     )
     @GetMapping(value = "/promotions/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribePromotionUpdates(Authentication authentication) {
+    public ResponseEntity<SseEmitter> subscribePromotionUpdates(Authentication authentication) {
         Musician musician = (Musician) authentication.getPrincipal();
-        return myPageSseService.subscribe(musician.getId());
+        SseEmitter emitter = myPageSseService.subscribe(musician.getId());
+
+        return ResponseEntity.ok()
+                .header("X-Content-Type-Options", "nosniff")
+                .header("X-Accel-Buffering", "no")
+                .header(HttpHeaders.CONNECTION, "keep-alive")
+                .cacheControl(CacheControl.noCache().mustRevalidate().sMaxAge(0, TimeUnit.SECONDS))
+                .contentType(MediaType.TEXT_EVENT_STREAM)
+                .body(emitter);
     }
 }
