@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -42,7 +43,7 @@ public class PromotionAnalysisPageQueryService {
 
         validateOwner(promotion, musicianId);
 
-        long promotionPageVisitCount =
+        long trackingClickCount =
                 promotionTrackingClickRepository.countByPromotionId(promotionId);
 
         long streamingClickCount =
@@ -50,27 +51,23 @@ public class PromotionAnalysisPageQueryService {
 
         return PromotionAnalysisPageResponse.builder()
                 .promotionId(promotion.getId())
-                .promotionInfo(toPromotionInfo(promotion))
+                .activityName(promotion.getActivityName())
+                .songTitle(promotion.getSongTitle())
+                .releaseDate(promotion.getReleaseDate())
+                .imageUrl(promotion.getImageUrl())
+                .shortDescription(promotion.getShortDescription())
+                .createdAt(promotion.getCreatedAt())
+                .trackingUrl(resolveTrackingUrl(promotion))
+                .streamingLinks(toStreamingLinks(promotionId, streamingClickCount))
                 .realtimeStats(PromotionAnalysisPageResponse.RealtimeStats.builder()
-                        .promotionPageVisitCount(promotionPageVisitCount)
+                        .trackingClickCount(trackingClickCount)
                         .streamingClickCount(streamingClickCount)
                         .build())
-                .streamingStats(toStreamingStats(promotionId, streamingClickCount))
                 .diagnosisSection(toDiagnosisSection(promotionId))
                 .build();
     }
 
-    private PromotionAnalysisPageResponse.PromotionInfo toPromotionInfo(MusicPromotion promotion) {
-        return PromotionAnalysisPageResponse.PromotionInfo.builder()
-                .albumName(promotion.getSongTitle())
-                .imageUrl(promotion.getImageUrl())
-                .releaseDate(promotion.getReleaseDate())
-                .promotionStartDate(promotion.getCreatedAt().toLocalDate())
-                .promotionTrackingUrl(resolvePromotionTrackingUrl(promotion))
-                .build();
-    }
-
-    private List<PromotionAnalysisPageResponse.StreamingStat> toStreamingStats(
+    private List<PromotionAnalysisPageResponse.StreamingLink> toStreamingLinks(
             Long promotionId,
             long totalStreamingClickCount
     ) {
@@ -82,10 +79,11 @@ public class PromotionAnalysisPageQueryService {
                     long clickCount =
                             promotionStreamingClickRepository.countByStreamingLinkId(link.getId());
 
-                    return PromotionAnalysisPageResponse.StreamingStat.builder()
+                    return PromotionAnalysisPageResponse.StreamingLink.builder()
                             .streamingCode(link.getStreamingCode())
-                            .displayName(resolveStreamingDisplayName(link.getStreamingCode()))
-                            .url(resolveStreamingUrl(link))
+                            .url(link.getOriginalUrl())
+                            .clickUrl(resolveStreamingClickUrl(link))
+                            .displayOrder(link.getDisplayOrder())
                             .clickCount(clickCount)
                             .clickShareRate(percent(clickCount, totalStreamingClickCount))
                             .build();
@@ -112,9 +110,23 @@ public class PromotionAnalysisPageQueryService {
                 .findTopByPromotion_IdOrderByCreatedAtDesc(promotionId)
                 .orElse(null);
 
-        if (latestJob != null && latestJob.getStatus() == AnalysisJobStatus.RUNNING) {
+        if (latestJob == null) {
+            return PromotionAnalysisPageResponse.DiagnosisSection.builder()
+                    .status("NOT_STARTED")
+                    .diagnosisCards(List.of())
+                    .build();
+        }
+
+        if (latestJob.getStatus() == AnalysisJobStatus.RUNNING) {
             return PromotionAnalysisPageResponse.DiagnosisSection.builder()
                     .status("RUNNING")
+                    .diagnosisCards(List.of())
+                    .build();
+        }
+
+        if (latestJob.getStatus() == AnalysisJobStatus.FAILED) {
+            return PromotionAnalysisPageResponse.DiagnosisSection.builder()
+                    .status("FAILED")
                     .diagnosisCards(List.of())
                     .build();
         }
@@ -146,7 +158,7 @@ public class PromotionAnalysisPageQueryService {
                 .build();
     }
 
-    private String resolvePromotionTrackingUrl(MusicPromotion promotion) {
+    private String resolveTrackingUrl(MusicPromotion promotion) {
         if (promotion.getPromotionTrackingLink() == null) {
             return null;
         }
@@ -154,26 +166,12 @@ public class PromotionAnalysisPageQueryService {
         return promotion.getPromotionTrackingLink().getTrackingUrl();
     }
 
-    private String resolveStreamingUrl(PromotionStreamingLink link) {
+    private String resolveStreamingClickUrl(PromotionStreamingLink link) {
         if (link.getRedirectUrl() != null && !link.getRedirectUrl().isBlank()) {
             return link.getRedirectUrl();
         }
 
         return link.getOriginalUrl();
-    }
-
-    private String resolveStreamingDisplayName(String streamingCode) {
-        if (streamingCode == null) {
-            return "기타";
-        }
-
-        return switch (streamingCode) {
-            case "YOUTUBE_MUSIC" -> "유튜브 뮤직";
-            case "SPOTIFY" -> "스포티파이";
-            case "MELON" -> "멜론";
-            case "APPLE_MUSIC" -> "애플뮤직";
-            default -> streamingCode;
-        };
     }
 
     private double percent(long numerator, long denominator) {
@@ -185,7 +183,7 @@ public class PromotionAnalysisPageQueryService {
         return Math.round(value * 100.0) / 100.0;
     }
 
-    private String formatDate(java.time.LocalDateTime dateTime) {
+    private String formatDate(LocalDateTime dateTime) {
         if (dateTime == null) {
             return null;
         }
@@ -195,7 +193,7 @@ public class PromotionAnalysisPageQueryService {
 
     private void validateOwner(MusicPromotion promotion, Long musicianId) {
         if (!promotion.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("본인의 프로모션만 조회할 수 있습니다.");
+            throw new IllegalArgumentException("본인의 프로모션만 조회할 수 없습니다.");
         }
     }
 

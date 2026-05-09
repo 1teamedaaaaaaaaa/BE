@@ -4,4 +4,5 @@ public enum DiagnosisStatus {
     COMPLETED,
     RUNNING,
     NOT_STARTED,
+    FAILED
 }
