@@ -12,6 +12,7 @@ public class MyPagePromotionItemResponse {
     private String title;
     private String coverImageUrl;
     private LocalDateTime createdAt;
+    private LocalDateTime lastActivityAt;
     private Long totalTrackingLinkClickCount;
     private Long totalStreamingLinkClickCount;
     private AnalysisSummary analysis;
@@ -22,5 +23,6 @@ public class MyPagePromotionItemResponse {
         private String status;
         private String label;
         private boolean hasUnreadResult;
+        private LocalDateTime diagnosedAt;
     }
 }
