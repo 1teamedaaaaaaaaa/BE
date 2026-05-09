@@ -23,6 +23,8 @@ import com.hoppin.infra.crawling.dto.response.AnalysisJobStatusResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -60,7 +62,7 @@ public class PromotionAnalysisJobService {
                         .build()
         );
 
-        analysisAutomationWebhookClient.trigger(job.getId(), promotion.getId());
+        triggerWebhookAfterCommit(job.getId(), promotion.getId());
         myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
 
         return new AnalysisJobCreateResponse(job.getId(), job.getStatus().name());
@@ -203,5 +205,21 @@ public class PromotionAnalysisJobService {
         if (request.getInstagramUsername() == null || request.getInstagramUsername().isBlank()) {
             throw new IllegalArgumentException("instagramUsername은 필수입니다.");
         }
+    }
+
+    private void triggerWebhookAfterCommit(Long analysisJobId, Long promotionId) {
+        Runnable triggerTask = () -> analysisAutomationWebhookClient.trigger(analysisJobId, promotionId);
+
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            triggerTask.run();
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                triggerTask.run();
+            }
+        });
     }
 }
