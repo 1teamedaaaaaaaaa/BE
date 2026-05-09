@@ -23,7 +23,7 @@ public class PromotionStreamingLink{
     @JoinColumn(name = "promotion_id", nullable = false)
     private MusicPromotion promotion;
 
-    @Column(name = "streaming_code", nullable = false, unique = true, length = 30)
+    @Column(name = "streaming_code", nullable = false, length = 30)
     private String streamingCode;
 
     @Column(name = "original_url", nullable = false, length = 1000)

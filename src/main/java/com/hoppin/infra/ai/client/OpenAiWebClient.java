@@ -568,7 +568,7 @@ public class OpenAiWebClient implements OpenAiClient {
                                  }
                                ]
                             }
-                            """;
+                            """;    
 
             Map<String, Object> body = Map.of(
                     "model", model,
