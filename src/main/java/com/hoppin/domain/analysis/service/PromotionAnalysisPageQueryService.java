@@ -94,14 +94,17 @@ public class PromotionAnalysisPageQueryService {
     }
 
     private PromotionAnalysisPageResponse.DiagnosisSection toDiagnosisSection(Long promotionId) {
-        PromotionDiagnosis latestDiagnosis = promotionDiagnosisRepository
-                .findTopByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId)
-                .orElse(null);
+        List<PromotionDiagnosis> diagnoses =
+                promotionDiagnosisRepository.findByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId);
 
-        if (latestDiagnosis != null) {
+        if (!diagnoses.isEmpty()) {
             return PromotionAnalysisPageResponse.DiagnosisSection.builder()
                     .status("COMPLETED")
-                    .latestDiagnosis(toDiagnosisCard(latestDiagnosis))
+                    .diagnosisCards(
+                            diagnoses.stream()
+                                    .map(this::toDiagnosisCard)
+                                    .toList()
+                    )
                     .build();
         }
 
@@ -112,13 +115,13 @@ public class PromotionAnalysisPageQueryService {
         if (latestJob != null && latestJob.getStatus() == AnalysisJobStatus.RUNNING) {
             return PromotionAnalysisPageResponse.DiagnosisSection.builder()
                     .status("RUNNING")
-                    .latestDiagnosis(null)
+                    .diagnosisCards(List.of())
                     .build();
         }
 
         return PromotionAnalysisPageResponse.DiagnosisSection.builder()
                 .status("NOT_STARTED")
-                .latestDiagnosis(null)
+                .diagnosisCards(List.of())
                 .build();
     }
 
