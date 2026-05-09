@@ -438,7 +438,6 @@ public class OpenAiWebClient implements OpenAiClient {
                             - "피드 게시글 > 홍보 페이지 진입"
                             - "홍보 링크 클릭 > 스트리밍 링크 클릭"
                             - "홍보 페이지 > 스트리밍 링크"
-                            - "피드 게시글 > 홍보 링크 클릭 > 스트리밍 링크 클릭"
                     
                             현재 데이터 구조에서는 "홍보 링크 클릭" 또는 "홍보 페이지 진입"이라고 쓰는 것이 더 정확합니다.
                     
@@ -568,7 +567,7 @@ public class OpenAiWebClient implements OpenAiClient {
                                  }
                                ]
                             }
-                            """;    
+                            """;
 
             Map<String, Object> body = Map.of(
                     "model", model,
