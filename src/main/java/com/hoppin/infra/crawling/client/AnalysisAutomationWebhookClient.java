@@ -1,12 +1,14 @@
 package com.hoppin.infra.crawling.client;
 
 import com.hoppin.infra.crawling.dto.request.AnalysisJobWebhookRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
+@Slf4j
 public class AnalysisAutomationWebhookClient {
 
     private final RestClient restClient = RestClient.create();
@@ -20,14 +22,24 @@ public class AnalysisAutomationWebhookClient {
 
     public void trigger(Long analysisJobId, Long promotionId) {
         if (webhookUrl == null || webhookUrl.isBlank()) {
+            log.warn("Analysis automation webhook skipped because webhook URL is blank. analysisJobId={}, promotionId={}",
+                    analysisJobId, promotionId);
             return;
         }
 
-        restClient.post()
-                .uri(webhookUrl)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new AnalysisJobWebhookRequest(analysisJobId, promotionId))
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            restClient.post()
+                    .uri(webhookUrl)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new AnalysisJobWebhookRequest(analysisJobId, promotionId))
+                    .retrieve()
+                    .toBodilessEntity();
+            log.info("Analysis automation webhook triggered. analysisJobId={}, promotionId={}, webhookUrl={}",
+                    analysisJobId, promotionId, webhookUrl);
+        } catch (RuntimeException e) {
+            log.error("Analysis automation webhook failed. analysisJobId={}, promotionId={}, webhookUrl={}",
+                    analysisJobId, promotionId, webhookUrl, e);
+            throw e;
+        }
     }
 }
