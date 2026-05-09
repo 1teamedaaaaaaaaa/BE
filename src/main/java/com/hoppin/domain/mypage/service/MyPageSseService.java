@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MyPageSseService {
 
     private static final long SSE_TIMEOUT_MILLIS = 30L * 60L * 1000L;
@@ -23,6 +25,8 @@ public class MyPageSseService {
     public SseEmitter subscribe(Long musicianId) {
         String emitterId = UUID.randomUUID().toString();
         SseEmitter emitter = new SseEmitter(SSE_TIMEOUT_MILLIS);
+
+        log.info("SSE subscribe called. musicianId={}, emitterId={}", musicianId, emitterId);
 
         emitterRepository.save(musicianId, emitterId, emitter);
         emitter.onCompletion(() -> emitterRepository.remove(musicianId, emitterId));
@@ -91,10 +95,20 @@ public class MyPageSseService {
             Object data
     ) {
         try {
+            if ("connected".equals(eventName)) {
+                log.info("SSE connected event send attempt. musicianId={}, emitterId={}", musicianId, emitterId);
+            }
             emitter.send(SseEmitter.event()
                     .name(eventName)
                     .data(data));
         } catch (IOException | IllegalStateException exception) {
+            log.warn(
+                    "SSE send failed. musicianId={}, emitterId={}, eventName={}, message={}",
+                    musicianId,
+                    emitterId,
+                    eventName,
+                    exception.getMessage()
+            );
             emitterRepository.remove(musicianId, emitterId);
         }
     }
