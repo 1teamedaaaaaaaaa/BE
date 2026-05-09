@@ -27,7 +27,8 @@ public class PromotionAnalysisPageController {
                 
                     - 진단 상태
                       - RUNNING
-                      - FAILED
+                      - COMPLETED
+                      - NOT STARTED
                     - 진단 완료 시 최신 진단 카드 정보
 
                     진단 카드를 클릭하면 diagnosisId를 이용해

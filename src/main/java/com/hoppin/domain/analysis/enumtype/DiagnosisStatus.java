@@ -2,5 +2,6 @@ package com.hoppin.domain.analysis.enumtype;
 
 public enum DiagnosisStatus {
     COMPLETED,
-    FAILED
+    RUNNING,
+    NOT_STARTED,
 }

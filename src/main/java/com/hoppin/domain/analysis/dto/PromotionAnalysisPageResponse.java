@@ -53,7 +53,7 @@ public class PromotionAnalysisPageResponse {
         /**
          * COMPLETED일 때만 값 있음
          */
-        private DiagnosisCard latestDiagnosis;
+        private List<DiagnosisCard> diagnosisCards;
     }
 
     @Getter
