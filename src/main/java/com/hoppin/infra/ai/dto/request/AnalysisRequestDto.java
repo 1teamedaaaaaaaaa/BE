@@ -30,6 +30,7 @@ public class AnalysisRequestDto {
     @Builder
     public static class InstagramSummary {
         private long contentCount;
+        private long followerCount;
         private long totalLikeCount;
         private long totalCommentCount;
     }

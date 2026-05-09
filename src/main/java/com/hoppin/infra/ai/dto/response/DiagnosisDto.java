@@ -17,6 +17,8 @@ public class DiagnosisDto {
 
     private Integer totalLikeCount;
 
+    private Integer followerCount;
+
     private Integer totalCommentCount;
 
     private Integer trackingLinkClickCount;

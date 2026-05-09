@@ -27,7 +27,7 @@ public class InternalAiController {
 
         AnalysisResponseDto response = aiService.callAi(aiRequest);
 
-        promotionAnalysisService.saveAnalysisResult(promotionId, response);
+        promotionAnalysisService.saveAnalysisResult(promotionId, analysisJobId,response);
 
         String email = promotionAnalysisService.getPromotionOwnerEmail(promotionId);
 

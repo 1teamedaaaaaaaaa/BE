@@ -28,20 +28,27 @@ public class CalculatedMetricsDto {
     private double commentRateByLike;
 
     /**
-     * 전체 링크 클릭 중 대표 홍보 링크 클릭 비중
-     * trackingLinkTotalClickCount / totalLinkClickCount * 100
-     */
-    private double trackingClickShare;
-
-    /**
      * 전체 링크 클릭 중 스트리밍 링크 클릭 비중
      * streamingLinkTotalClickCount / totalLinkClickCount * 100
+     * totalLinkClickCount = trackingLinkTotalClickCount + streamingLinkTotalClickCount
      */
     private double streamingClickShare;
 
     /**
-     * 게시물 1개당 평균 링크 클릭 수
-     * totalLinkClickCount / contentCount
+     * 팔로워 대비 게시글 반응률
+     * (totalLikeCount + totalCommentCount) / followerCount * 100
      */
-    private double linkClickPerPost;
+    private double followerEngagementRate;
+
+    /**
+     * 반응 대비 홍보 링크 클릭률
+     * trackingLinkTotalClickCount / (totalLikeCount + totalCommentCount) * 100
+     */
+    private double promoClickRateByEngagement;
+
+    /**
+     * 홍보 링크 클릭 대비 스트리밍 링크 클릭률
+     * streamingLinkTotalClickCount / trackingLinkTotalClickCount * 100
+     */
+    private double streamingClickRateByPromoClick;
 }

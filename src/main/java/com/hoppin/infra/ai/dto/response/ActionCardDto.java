@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class ActionCardDto {
     private String title;
-    private String reason;
     private String metric;
-    private String example;
+    private String details;
 }

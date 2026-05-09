@@ -18,4 +18,5 @@ public interface PromotionAnalysisJobRepository extends JpaRepository<PromotionA
     where j.promotion.id = :promotionId
 """)
     void deleteByPromotionId(@Param("promotionId") Long promotionId);
+
 }

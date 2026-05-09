@@ -113,6 +113,22 @@ async function collectPostLinks(page, maxPosts) {
   return Array.from(links).slice(0, maxPosts);
 }
 
+async function extractFollowerCount(page) {
+  const followerRaw = await page.evaluate(() => {
+    const metaDescription = document.querySelector('meta[property="og:description"]')?.content || "";
+    const pageText = document.body?.innerText || "";
+    const combinedText = [metaDescription, pageText].join(" ");
+
+    const followerMatch =
+      combinedText.match(/([\d.,]+[kKmM]?)\s+followers/) ||
+      combinedText.match(/followers\s*([\d.,]+[kKmM]?)/i);
+
+    return followerMatch ? followerMatch[1] : "0";
+  });
+
+  return normalizeCount(followerRaw);
+}
+
 async function extractPostData(page, permalink) {
   return page.evaluate((currentPermalink) => {
     const time = document.querySelector("time");
@@ -192,6 +208,7 @@ async function crawlPublicInstagram({ username, sinceDate, maxPosts, sessionFile
     await assertNotOnLoginPage(page);
     await closeLoginPopup(page);
 
+    const followerCount = await extractFollowerCount(page);
     const links = await collectPostLinks(page, maxPosts);
     const posts = [];
 
@@ -232,6 +249,7 @@ async function crawlPublicInstagram({ username, sinceDate, maxPosts, sessionFile
 
     return {
       contentCount: posts.length,
+      followerCount,
       totalLikeCount,
       totalCommentCount,
       posts

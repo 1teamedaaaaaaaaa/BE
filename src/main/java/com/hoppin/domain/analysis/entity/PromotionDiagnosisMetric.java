@@ -21,6 +21,9 @@ public class PromotionDiagnosisMetric extends BaseEntity {
     @Column(name = "content_count", nullable = false)
     private Integer contentCount;
 
+    @Column(name = "follower_count", nullable = false)
+    private Integer followerCount;
+
     @Column(name = "total_like_count", nullable = false)
     private Integer totalLikeCount;
 
@@ -39,6 +42,7 @@ public class PromotionDiagnosisMetric extends BaseEntity {
     @Builder
     private PromotionDiagnosisMetric(
             Integer contentCount,
+            Integer followerCount,
             Integer totalLikeCount,
             Integer totalCommentCount,
             Integer trackingLinkClickCount,
@@ -46,6 +50,7 @@ public class PromotionDiagnosisMetric extends BaseEntity {
             Integer totalLinkClickCount
     ) {
         this.contentCount = contentCount;
+        this.followerCount = followerCount;
         this.totalLikeCount = totalLikeCount;
         this.totalCommentCount = totalCommentCount;
         this.trackingLinkClickCount = trackingLinkClickCount;

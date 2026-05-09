@@ -6,6 +6,7 @@ import com.hoppin.domain.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,9 @@ public class PromotionDiagnosis extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "promotion_id", nullable = false)
     private MusicPromotion musicPromotion;
+
+    @Column(name = "since_date")
+    private LocalDate sinceDate;
 
     @Column(length = 200, nullable = false)
     private String headline;
@@ -53,9 +57,18 @@ public class PromotionDiagnosis extends BaseEntity {
     @OrderBy("actionOrder ASC")
     private List<PromotionActionPlan> actionPlans = new ArrayList<>();
 
+    @OneToOne(
+            mappedBy = "promotionDiagnosis",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private PromotionCalculatedMetrics calculatedMetrics;
+
     @Builder
     private PromotionDiagnosis(
             MusicPromotion musicPromotion,
+            LocalDate sinceDate,
             String headline,
             String bottleneckType,
             String highlightSection,
@@ -64,6 +77,7 @@ public class PromotionDiagnosis extends BaseEntity {
             LocalDateTime diagnosedAt
     ) {
         this.musicPromotion = musicPromotion;
+        this.sinceDate = sinceDate;
         this.headline = headline;
         this.bottleneckType = bottleneckType;
         this.highlightSection = highlightSection;
@@ -80,6 +94,11 @@ public class PromotionDiagnosis extends BaseEntity {
     public void addActionPlan(PromotionActionPlan actionPlan) {
         this.actionPlans.add(actionPlan);
         actionPlan.setPromotionDiagnosis(this);
+    }
+
+    public void assignCalculatedMetrics(PromotionCalculatedMetrics calculatedMetrics) {
+        this.calculatedMetrics = calculatedMetrics;
+        calculatedMetrics.assignDiagnosis(this);
     }
 
     public boolean isUnread() {

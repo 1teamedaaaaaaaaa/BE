@@ -12,6 +12,7 @@ public record AnalysisJobStatusResponse(
         String mainPainPoint,
         String mainResourceConstraint,
         Integer contentCount,
+        Integer followerCount,
         Integer totalLikeCount,
         Integer totalCommentCount,
         LocalDateTime startedAt,

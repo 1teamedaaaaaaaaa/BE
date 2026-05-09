@@ -24,28 +24,23 @@ public class PromotionActionPlan extends BaseEntity {
     @Column(length = 200, nullable = false)
     private String title;
 
-    @Column(length = 1000, nullable = false)
-    private String reason;
-
     @Column(length = 300, nullable = false)
     private String metric;
 
-    @Column(length = 1000, nullable = false)
-    private String example;
+    @Column(length = 2000, nullable = false)
+    private String details;
 
     @Builder
     private PromotionActionPlan(
             Integer actionOrder,
             String title,
-            String reason,
             String metric,
-            String example
+            String details
     ) {
         this.actionOrder = actionOrder;
         this.title = title;
-        this.reason = reason;
         this.metric = metric;
-        this.example = example;
+        this.details = details;
     }
 
     void setPromotionDiagnosis(PromotionDiagnosis promotionDiagnosis) {

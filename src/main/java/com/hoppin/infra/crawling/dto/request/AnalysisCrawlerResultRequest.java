@@ -10,6 +10,7 @@ import java.util.List;
 public class AnalysisCrawlerResultRequest {
 
     private int contentCount;
+    private int followerCount;
     private int totalLikeCount;
     private int totalCommentCount;
     private List<CrawledPost> posts;
