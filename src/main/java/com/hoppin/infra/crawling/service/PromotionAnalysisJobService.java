@@ -136,6 +136,7 @@ public class PromotionAnalysisJobService {
                 );
             }
         }
+        System.out.println("follower count : " + request.getFollowerCount());
 
         job.updateCrawlerSummary(
                 request.getContentCount(),

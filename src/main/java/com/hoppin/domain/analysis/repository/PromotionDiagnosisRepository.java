@@ -12,4 +12,5 @@ public interface PromotionDiagnosisRepository extends JpaRepository<PromotionDia
     List<PromotionDiagnosis> findByMusicPromotion_Id(Long promotionId);
 
     Optional<PromotionDiagnosis> findTopByMusicPromotion_IdOrderByDiagnosedAtDesc(Long promotionId);
+
 }

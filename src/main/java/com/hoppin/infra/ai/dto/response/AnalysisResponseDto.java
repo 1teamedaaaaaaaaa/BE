@@ -13,8 +13,6 @@ public class AnalysisResponseDto {
     private DiagnosisDto diagnosis;
 
     private CalculatedMetricsDto calculatedMetrics;
-    private ChannelInsightDto channelInsight;
-    private PostInsightDto postInsight;
 
     private List<ActionCardDto> actions;
 }

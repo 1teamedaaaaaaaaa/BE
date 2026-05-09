@@ -7,6 +7,9 @@ import com.hoppin.domain.PromotionStreamingLink.repository.PromotionStreamingLin
 import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClickRepository;
 import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkRepository;
 import com.hoppin.domain.analysis.entity.PromotionActionPlan;
+import com.hoppin.domain.analysis.entity.PromotionCalculatedMetrics;
+import com.hoppin.domain.analysis.enumtype.AnalysisMode;
+import com.hoppin.infra.ai.dto.response.CalculatedMetricsDto;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisCrawledPost;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
 import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -119,7 +123,7 @@ public class PromotionAnalysisService {
                 .sinceDate(job.getSinceDate().toString())
                 .releaseDate(musicPromotion.getReleaseDate() == null ? null : musicPromotion.getReleaseDate().toString())
                 .instagramUsername(job.getInstagramUsername())
-                .analysisMode(resolveAnalysisMode(musicPromotion))
+                .analysisMode(resolveAnalysisMode(musicPromotion).name())
                 .promoLink(resolvePromoLink(musicPromotion))
                 .mainPainPoint(job.getMainPainPoint())
                 .mainResourceConstraint(job.getMainResourceConstraint())
@@ -140,12 +144,20 @@ public class PromotionAnalysisService {
      */
     public Long saveAnalysisResult(
             Long promotionId,
+            Long analysisJobId,
             AnalysisResponseDto responseDto
     ) {
         MusicPromotion musicPromotion = musicPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new IllegalArgumentException("프로모션이 존재하지 않습니다. id=" + promotionId));
 
-        return saveAnalysisResultInternal(musicPromotion, responseDto);
+        PromotionAnalysisJob job = promotionAnalysisJobRepository.findById(analysisJobId)
+                .orElseThrow(() -> new IllegalArgumentException("분석 작업이 존재하지 않습니다. id=" + analysisJobId));
+
+        if (!job.getPromotion().getId().equals(promotionId)) {
+            throw new IllegalArgumentException("프로모션과 분석 작업이 일치하지 않습니다.");
+        }
+
+        return saveAnalysisResultInternal(musicPromotion, job, responseDto);
     }
 
     /**
@@ -155,6 +167,7 @@ public class PromotionAnalysisService {
     public Long saveAnalysisResult(
             Long musicianId,
             Long promotionId,
+            Long analysisJobId,
             AnalysisResponseDto responseDto
     ) {
         MusicPromotion musicPromotion = musicPromotionRepository.findById(promotionId)
@@ -162,7 +175,14 @@ public class PromotionAnalysisService {
 
         validateOwner(musicPromotion, musicianId);
 
-        return saveAnalysisResultInternal(musicPromotion, responseDto);
+        PromotionAnalysisJob job = promotionAnalysisJobRepository.findById(analysisJobId)
+                .orElseThrow(() -> new IllegalArgumentException("분석 작업이 존재하지 않습니다. id=" + analysisJobId));
+
+        if (!job.getPromotion().getId().equals(promotionId)) {
+            throw new IllegalArgumentException("프로모션과 분석 작업이 일치하지 않습니다.");
+        }
+
+        return saveAnalysisResultInternal(musicPromotion, job, responseDto);
     }
 
     public void markLatestDiagnosisAsRead(
@@ -189,6 +209,7 @@ public class PromotionAnalysisService {
      */
     private Long saveAnalysisResultInternal(
             MusicPromotion musicPromotion,
+            PromotionAnalysisJob job,
             AnalysisResponseDto responseDto
     ) {
         DiagnosisDto diagnosisDto = responseDto.getDiagnosis();
@@ -199,6 +220,7 @@ public class PromotionAnalysisService {
 
         PromotionDiagnosis diagnosis = PromotionDiagnosis.builder()
                 .musicPromotion(musicPromotion)
+                .sinceDate(job.getSinceDate())
                 .headline(responseDto.getHeadline())
                 .bottleneckType(diagnosisDto.getBottleneckType())
                 .highlightSection(diagnosisDto.getHighlightSection())
@@ -209,12 +231,27 @@ public class PromotionAnalysisService {
 
         PromotionDiagnosisMetric metric = PromotionDiagnosisMetric.builder()
                 .contentCount(toZeroIfNull(diagnosisDto.getContentCount()))
+                .followerCount(toZeroIfNull(diagnosisDto.getFollowerCount()))
                 .totalLikeCount(toZeroIfNull(diagnosisDto.getTotalLikeCount()))
                 .totalCommentCount(toZeroIfNull(diagnosisDto.getTotalCommentCount()))
                 .trackingLinkClickCount(toZeroIfNull(diagnosisDto.getTrackingLinkClickCount()))
                 .streamingLinkClickCount(toZeroIfNull(diagnosisDto.getStreamingLinkClickCount()))
                 .totalLinkClickCount(toZeroIfNull(diagnosisDto.getTotalLinkClickCount()))
                 .build();
+
+        CalculatedMetricsDto calculatedMetricsDto = responseDto.getCalculatedMetrics();
+
+        PromotionCalculatedMetrics calculatedMetrics = PromotionCalculatedMetrics.builder()
+                .avgLikePerPost(toZeroIfNull(calculatedMetricsDto == null ? null : calculatedMetricsDto.getAvgLikePerPost()))
+                .avgCommentPerPost(toZeroIfNull(calculatedMetricsDto == null ? null : calculatedMetricsDto.getAvgCommentPerPost()))
+                .commentRateByLike(toZeroIfNull(calculatedMetricsDto == null ? null : calculatedMetricsDto.getCommentRateByLike()))
+                .streamingClickShare(toZeroIfNull(calculatedMetricsDto == null ? null : calculatedMetricsDto.getStreamingClickShare()))
+                .followerEngagementRate(toZeroIfNull(calculatedMetricsDto == null ? null : calculatedMetricsDto.getFollowerEngagementRate()))
+                .promoClickRateByEngagement(toZeroIfNull(calculatedMetricsDto == null ? null : calculatedMetricsDto.getPromoClickRateByEngagement()))
+                .streamingClickRateByPromoClick(toZeroIfNull(calculatedMetricsDto == null ? null : calculatedMetricsDto.getStreamingClickRateByPromoClick()))
+                .build();
+
+        diagnosis.assignCalculatedMetrics(calculatedMetrics);
 
         diagnosis.assignMetric(metric);
 
@@ -227,9 +264,8 @@ public class PromotionAnalysisService {
                 PromotionActionPlan actionPlan = PromotionActionPlan.builder()
                         .actionOrder(order++)
                         .title(actionDto.getTitle())
-                        .reason(actionDto.getReason())
                         .metric(actionDto.getMetric())
-                        .example(actionDto.getExample())
+                        .details(actionDto.getDetails())
                         .build();
 
                 diagnosis.addActionPlan(actionPlan);
@@ -244,22 +280,26 @@ public class PromotionAnalysisService {
         return diagnosisId;
     }
 
+    private double toZeroIfNull(Double value) {
+        return value == null ? 0.0 : value;
+    }
+
     private void validateOwner(MusicPromotion musicPromotion, Long musicianId) {
         if (!musicPromotion.getMusician().getId().equals(musicianId)) {
             throw new IllegalArgumentException("본인의 프로모션만 분석할 수 있습니다.");
         }
     }
 
-    private String resolveAnalysisMode(MusicPromotion musicPromotion) {
+    private AnalysisMode resolveAnalysisMode(MusicPromotion musicPromotion) {
         if (musicPromotion.getReleaseDate() == null) {
-            return "POST_CAMPAIGN";
+            return AnalysisMode.POST_CAMPAIGN;
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         return today.isBefore(musicPromotion.getReleaseDate())
-                ? "PRE_CAMPAIGN"
-                : "POST_CAMPAIGN";
+                ? AnalysisMode.PRE_CAMPAIGN
+                : AnalysisMode.POST_CAMPAIGN;
     }
 
     private String resolvePromoLink(MusicPromotion musicPromotion) {

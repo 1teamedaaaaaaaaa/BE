@@ -56,9 +56,7 @@ public class EmailService {
             int order = 1;
             for (ActionCardDto action : response.getActions()) {
                 sb.append(order++).append(". ").append(action.getTitle()).append("\n");
-                sb.append("- 이유: ").append(action.getReason()).append("\n");
-                sb.append("- 지표: ").append(action.getMetric()).append("\n");
-                sb.append("- 예시: ").append(action.getExample()).append("\n\n");
+                sb.append("- 내용: ").append(action.getDetails()).append("\n");
             }
         }
 

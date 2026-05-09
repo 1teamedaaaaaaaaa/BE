@@ -35,7 +35,8 @@ public class AiController {
     @PostMapping("/analyze/{promotionId}")
     public AnalysisResponseDto analyze(
             Authentication authentication,
-            @PathVariable Long promotionId
+            @PathVariable Long promotionId,
+            @RequestParam Long analysisJobId
     ) {
         Musician musician = (Musician) authentication.getPrincipal();
         Long musicianId = musician.getId();
@@ -45,7 +46,7 @@ public class AiController {
 
         AnalysisResponseDto response = aiService.callAi(aiRequest);
 
-        promotionAnalysisService.saveAnalysisResult(musicianId, promotionId, response);
+        promotionAnalysisService.saveAnalysisResult(musicianId, promotionId, analysisJobId, response);
 
         return response;
     }
