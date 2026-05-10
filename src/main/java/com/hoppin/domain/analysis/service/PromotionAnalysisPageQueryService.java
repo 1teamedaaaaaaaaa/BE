@@ -14,6 +14,9 @@ import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
 import com.hoppin.infra.crawling.enumtype.AnalysisJobStatus;
 import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class PromotionAnalysisPageQueryService {
 
+    private static final int DIAGNOSIS_PAGE_SIZE = 10;
+
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionTrackingClickRepository promotionTrackingClickRepository;
     private final PromotionStreamingClickRepository promotionStreamingClickRepository;
@@ -36,18 +41,25 @@ public class PromotionAnalysisPageQueryService {
 
     public PromotionAnalysisPageResponse getAnalysisPage(
             Long musicianId,
-            Long promotionId
+            Long promotionId,
+            int page
     ) {
         MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new IllegalArgumentException("프로모션이 존재하지 않습니다. id=" + promotionId));
 
         validateOwner(promotion, musicianId);
 
+        int safePage = Math.max(page, 0);
+        Pageable pageable = PageRequest.of(safePage, DIAGNOSIS_PAGE_SIZE);
+
         long trackingClickCount =
                 promotionTrackingClickRepository.countByPromotionId(promotionId);
 
         long streamingClickCount =
                 promotionStreamingClickRepository.countByPromotionId(promotionId);
+
+        DiagnosisPageResult diagnosisPageResult =
+                toDiagnosisPageResult(promotionId, pageable);
 
         return PromotionAnalysisPageResponse.builder()
                 .promotionId(promotion.getId())
@@ -63,7 +75,8 @@ public class PromotionAnalysisPageQueryService {
                         .trackingClickCount(trackingClickCount)
                         .streamingClickCount(streamingClickCount)
                         .build())
-                .diagnosis(toDiagnosisList(promotionId))
+                .diagnosis(diagnosisPageResult.items())
+                .diagnosisPage(diagnosisPageResult.pageInfo())
                 .build();
     }
 
@@ -91,36 +104,80 @@ public class PromotionAnalysisPageQueryService {
                 .toList();
     }
 
-    private List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> toDiagnosisList(Long promotionId) {
-        List<PromotionDiagnosis> diagnoses =
-                promotionDiagnosisRepository.findByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId);
+    private DiagnosisPageResult toDiagnosisPageResult(
+            Long promotionId,
+            Pageable pageable
+    ) {
+        Page<PromotionDiagnosis> diagnosisPage =
+                promotionDiagnosisRepository.findPageByMusicPromotion_IdOrderByDiagnosedAtDesc(
+                        promotionId,
+                        pageable
+                );
 
-        if (!diagnoses.isEmpty()) {
-            return diagnoses.stream()
-                    .map(this::toCompletedDiagnosis)
-                    .toList();
+        if (diagnosisPage.hasContent()) {
+            List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> items =
+                    diagnosisPage.getContent()
+                            .stream()
+                            .map(this::toCompletedDiagnosis)
+                            .toList();
+
+            return new DiagnosisPageResult(
+                    items,
+                    toPageInfo(diagnosisPage)
+            );
+        }
+
+        // 진단 결과가 없는 상태에서 page=1 이상이면 빈 배열로 내려줌
+        if (pageable.getPageNumber() > 0) {
+            return new DiagnosisPageResult(
+                    List.of(),
+                    PromotionAnalysisPageResponse.DiagnosisPage.builder()
+                            .page(pageable.getPageNumber())
+                            .size(pageable.getPageSize())
+                            .totalElements(0)
+                            .totalPages(0)
+                            .hasNext(false)
+                            .build()
+            );
         }
 
         PromotionAnalysisJob latestJob = promotionAnalysisJobRepository
                 .findTopByPromotion_IdOrderByCreatedAtDesc(promotionId)
                 .orElse(null);
 
+        String status = resolveEmptyDiagnosisStatus(latestJob);
+
+        return new DiagnosisPageResult(
+                List.of(toEmptyDiagnosis(status)),
+                PromotionAnalysisPageResponse.DiagnosisPage.builder()
+                        .page(pageable.getPageNumber())
+                        .size(pageable.getPageSize())
+                        .totalElements(1)
+                        .totalPages(1)
+                        .hasNext(false)
+                        .build()
+        );
+    }
+
+    private String resolveEmptyDiagnosisStatus(PromotionAnalysisJob latestJob) {
         if (latestJob == null) {
-            return List.of(toEmptyDiagnosis("PENDING"));
+            return "PENDING";
         }
 
         if (latestJob.getStatus() == AnalysisJobStatus.RUNNING) {
-            return List.of(toEmptyDiagnosis("RUNNING"));
+            return "RUNNING";
         }
 
         if (latestJob.getStatus() == AnalysisJobStatus.FAILED) {
-            return List.of(toEmptyDiagnosis("FAILED"));
+            return "FAILED";
         }
 
-        return List.of(toEmptyDiagnosis("PENDING"));
+        return "PENDING";
     }
 
-    private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toCompletedDiagnosis(PromotionDiagnosis diagnosis) {
+    private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toCompletedDiagnosis(
+            PromotionDiagnosis diagnosis
+    ) {
         PromotionActionPlan firstAction = diagnosis.getActionPlans()
                 .stream()
                 .min(Comparator.comparing(
@@ -151,6 +208,18 @@ public class PromotionAnalysisPageQueryService {
                 .headline(null)
                 .actionTitle(null)
                 .unread(false)
+                .build();
+    }
+
+    private PromotionAnalysisPageResponse.DiagnosisPage toPageInfo(
+            Page<PromotionDiagnosis> page
+    ) {
+        return PromotionAnalysisPageResponse.DiagnosisPage.builder()
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .hasNext(page.hasNext())
                 .build();
     }
 
@@ -195,5 +264,11 @@ public class PromotionAnalysisPageQueryService {
 
     private String defaultIfBlank(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    private record DiagnosisPageResult(
+            List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> items,
+            PromotionAnalysisPageResponse.DiagnosisPage pageInfo
+    ) {
     }
 }
