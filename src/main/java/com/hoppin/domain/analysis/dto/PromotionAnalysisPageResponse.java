@@ -25,6 +25,7 @@ public class PromotionAnalysisPageResponse {
     private RealtimeStats realtimeStats;
 
     private List<AnalysisDiagnosisItem> diagnosis;
+    private DiagnosisPage diagnosisPage;
 
     @Getter
     @Builder
@@ -54,5 +55,15 @@ public class PromotionAnalysisPageResponse {
         private String headline;
         private String actionTitle;
         private boolean unread;
+    }
+
+    @Getter
+    @Builder
+    public static class DiagnosisPage {
+        private int page;
+        private int size;
+        private long totalElements;
+        private int totalPages;
+        private boolean hasNext;
     }
 }

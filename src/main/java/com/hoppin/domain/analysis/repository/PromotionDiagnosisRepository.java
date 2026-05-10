@@ -1,6 +1,8 @@
 package com.hoppin.domain.analysis.repository;
 
 import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +16,10 @@ public interface PromotionDiagnosisRepository extends JpaRepository<PromotionDia
     Optional<PromotionDiagnosis> findTopByMusicPromotion_IdOrderByDiagnosedAtDesc(Long promotionId);
 
     List<PromotionDiagnosis> findByMusicPromotion_IdOrderByDiagnosedAtDesc(Long promotionId);
+
+    Page<PromotionDiagnosis> findPageByMusicPromotion_IdOrderByDiagnosedAtDesc(
+            Long promotionId,
+            Pageable pageable
+    );
 
 }
