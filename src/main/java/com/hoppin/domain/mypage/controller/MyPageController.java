@@ -2,6 +2,7 @@ package com.hoppin.domain.mypage.controller;
 
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.mypage.dto.MyPagePromotionPageResponse;
+import com.hoppin.domain.mypage.dto.MyPagePromotionTitlePageResponse;
 import com.hoppin.domain.mypage.service.MyPageService;
 import com.hoppin.domain.mypage.service.MyPageSseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +45,19 @@ public class MyPageController {
                 keyword,
                 page
         );
+    }
+
+    @Operation(
+            summary = "내 프로모션 제목 목록 조회",
+            description = "로그인한 뮤지션의 프로모션 제목 목록을 생성 최신순으로 5개씩 조회합니다."
+    )
+    @GetMapping("/promotionsTitle")
+    public MyPagePromotionTitlePageResponse getMyPromotionTitles(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        Musician musician = (Musician) authentication.getPrincipal();
+        return myPageService.getMyPromotionTitles(musician.getId(), page);
     }
 
     @Operation(
