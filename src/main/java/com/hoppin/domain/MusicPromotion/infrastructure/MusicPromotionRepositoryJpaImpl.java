@@ -7,11 +7,13 @@ import com.hoppin.domain.PromotionTrackingClick.repository.PromotionTrackingClic
 import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
 import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 import com.hoppin.domain.mypage.dto.MyPagePromotionItemResponse;
+import com.hoppin.domain.mypage.dto.MyPagePromotionTitleItemResponse;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
 import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -75,6 +77,13 @@ public class MusicPromotionRepositoryJpaImpl implements MusicPromotionRepository
     }
 
     @Override
+    public Page<MyPagePromotionTitleItemResponse> findMyPagePromotionTitles(Long musicianId, int page) {
+        Pageable pageable = PageRequest.of(page, 5);
+        return musicPromotionJpaRepository.findMyPagePromotionTitles(musicianId, pageable)
+                .map(this::toMyPagePromotionTitleItemResponse);
+    }
+
+    @Override
     public Optional<MyPagePromotionItemResponse> findMyPagePromotion(
             Long musicianId,
             Long promotionId
@@ -135,6 +144,13 @@ public class MusicPromotionRepositoryJpaImpl implements MusicPromotionRepository
                 trackingLinkClickCount,
                 streamingLinkClickCount,
                 analysisSummary
+        );
+    }
+
+    private MyPagePromotionTitleItemResponse toMyPagePromotionTitleItemResponse(MusicPromotion promotion) {
+        return new MyPagePromotionTitleItemResponse(
+                promotion.getId(),
+                promotion.getSongTitle()
         );
     }
 

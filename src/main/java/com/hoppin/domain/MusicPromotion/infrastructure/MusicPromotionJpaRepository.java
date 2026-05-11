@@ -36,4 +36,15 @@ public interface MusicPromotionJpaRepository extends JpaRepository<MusicPromotio
             @Param("keyword") String keyword
     );
 
+    @Query("""
+    select p
+    from MusicPromotion p
+    where p.musician.id = :musicianId
+    order by p.createdAt desc, p.id desc
+    """)
+    Page<MusicPromotion> findMyPagePromotionTitles(
+            @Param("musicianId") Long musicianId,
+            Pageable pageable
+    );
+
 }
