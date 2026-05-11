@@ -1,6 +1,7 @@
 package com.hoppin.domain.mypage.service;
 
 import com.hoppin.domain.MusicPromotion.repository.MusicPromotionRepository;
+import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 import com.hoppin.domain.mypage.dto.MyPagePromotionItemResponse;
 import com.hoppin.domain.mypage.dto.MyPagePromotionPageResponse;
 import com.hoppin.domain.mypage.dto.MyPagePromotionTitleItemResponse;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MyPageService {
 
     private final MusicPromotionRepository musicPromotionRepository;
+    private final PromotionDiagnosisRepository promotionDiagnosisRepository;
 
     public MyPagePromotionPageResponse getMyPromotions(
             Long musicianId,
@@ -63,5 +65,9 @@ public class MyPageService {
                 result.getTotalPages(),
                 result.hasNext()
         );
+    }
+
+    public boolean hasUnreadDiagnoses(Long musicianId) {
+        return promotionDiagnosisRepository.existsUnreadDiagnosisByMusicianId(musicianId);
     }
 }
