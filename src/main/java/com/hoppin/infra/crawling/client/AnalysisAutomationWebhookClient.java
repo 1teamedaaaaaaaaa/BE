@@ -6,6 +6,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDate;
+
 @Component
 public class AnalysisAutomationWebhookClient {
 
@@ -26,7 +28,8 @@ public class AnalysisAutomationWebhookClient {
         restClient.post()
                 .uri(webhookUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new AnalysisJobWebhookRequest(analysisJobId, promotionId))
+                .body(new AnalysisJobWebhookRequest(analysisJobId,
+                                                promotionId))
                 .retrieve()
                 .toBodilessEntity();
     }

@@ -2,16 +2,18 @@ package com.hoppin.infra.crawling.service;
 
 import com.hoppin.infra.crawling.dto.response.InstagramProfileValidateResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InstagramProfileValidateService {
 
-    private final RestClient instagramCrawlerRestClient = RestClient.builder()
-            .baseUrl("http://instagram-crawler:3001")
-            .build();
+    @Value("${crawler.instagram.base-url}")
+    private String crawlerBaseUrl;
 
     public InstagramProfileValidateResponse validate(String instagramUsername) {
         String normalizedUsername = normalizeInstagramUsername(instagramUsername);
@@ -33,8 +35,14 @@ public class InstagramProfileValidateService {
         }
 
         try {
-            InstagramProfileValidateResponse response = instagramCrawlerRestClient.post()
-                    .uri("/profile/validate")
+            String validateUrl = crawlerBaseUrl + "/profile/validate";
+
+            log.info("Instagram validate request url = {}", validateUrl);
+            log.info("Instagram validate username = {}", normalizedUsername);
+
+            InstagramProfileValidateResponse response = RestClient.create()
+                    .post()
+                    .uri(validateUrl)
                     .body(new CrawlerValidateRequest(normalizedUsername))
                     .retrieve()
                     .body(InstagramProfileValidateResponse.class);
@@ -45,6 +53,13 @@ public class InstagramProfileValidateService {
 
             return response;
         } catch (Exception e) {
+            log.warn(
+                    "인스타그램 프로필 검증 실패. crawlerBaseUrl={}, username={}",
+                    crawlerBaseUrl,
+                    normalizedUsername,
+                    e
+            );
+
             return validationFailed();
         }
     }

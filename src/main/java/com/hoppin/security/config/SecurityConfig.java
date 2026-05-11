@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/music-promotions/*/diagnoses/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/music-promotions/**").permitAll()
                         .requestMatchers("/api/dev/token").permitAll()
+                        .requestMatchers("/api/crawling/instagram/profile/validate").permitAll()
                         .requestMatchers(
                                 "/actuator/health",
                                 "/actuator/prometheus"
