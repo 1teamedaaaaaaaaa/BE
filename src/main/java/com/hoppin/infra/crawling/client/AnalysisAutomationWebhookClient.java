@@ -7,6 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDate;
+
 @Component
 @Slf4j
 public class AnalysisAutomationWebhookClient {
@@ -27,19 +29,12 @@ public class AnalysisAutomationWebhookClient {
             return;
         }
 
-        try {
-            restClient.post()
-                    .uri(webhookUrl)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new AnalysisJobWebhookRequest(analysisJobId, promotionId))
-                    .retrieve()
-                    .toBodilessEntity();
-            log.info("Analysis automation webhook triggered. analysisJobId={}, promotionId={}, webhookUrl={}",
-                    analysisJobId, promotionId, webhookUrl);
-        } catch (RuntimeException e) {
-            log.error("Analysis automation webhook failed. analysisJobId={}, promotionId={}, webhookUrl={}",
-                    analysisJobId, promotionId, webhookUrl, e);
-            throw e;
-        }
+        restClient.post()
+                .uri(webhookUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new AnalysisJobWebhookRequest(analysisJobId,
+                                                promotionId))
+                .retrieve()
+                .toBodilessEntity();
     }
 }

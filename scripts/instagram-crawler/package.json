@@ -9,6 +9,7 @@
     "save-session": "node save-instagram-session.js"
   },
   "dependencies": {
+    "express": "^5.2.1",
     "playwright": "^1.54.1"
   }
 }
