@@ -54,6 +54,7 @@ public class MyPageSseService {
     }
 
     public void publishPromotionUpdated(Long musicianId, Long promotionId) {
+        log.info("Publishing promotion update. musicianId={}, promotionId={}", musicianId, promotionId);
         MyPagePromotionItemResponse promotionItem = myPageService.getMyPromotionItem(musicianId, promotionId);
 
         emitterRepository.findAllByMusicianId(musicianId)
@@ -101,6 +102,16 @@ public class MyPageSseService {
             emitter.send(SseEmitter.event()
                     .name(eventName)
                     .data(data));
+            if ("promotion-analysis-updated".equals(eventName) && data instanceof MyPagePromotionItemResponse response) {
+                log.info(
+                        "SSE promotion-analysis-updated sent. musicianId={}, emitterId={}, promotionId={}, status={}, hasUnreadResult={}",
+                        musicianId,
+                        emitterId,
+                        response.getPromotionId(),
+                        response.getAnalysis() == null ? null : response.getAnalysis().getStatus(),
+                        response.getAnalysis() != null && response.getAnalysis().isHasUnreadResult()
+                );
+            }
         } catch (IOException | IllegalStateException exception) {
             log.warn(
                     "SSE send failed. musicianId={}, emitterId={}, eventName={}, message={}",
