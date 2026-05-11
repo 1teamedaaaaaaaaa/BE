@@ -2,6 +2,7 @@ package com.hoppin.domain.MusicPromotion.repository;
 
 import com.hoppin.domain.MusicPromotion.entity.MusicPromotion;
 import com.hoppin.domain.mypage.dto.MyPagePromotionItemResponse;
+import com.hoppin.domain.mypage.dto.MyPagePromotionTitleItemResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,6 +25,16 @@ public interface MusicPromotionRepository {
             Long musicianId,
             String keyword,
             Pageable pageable
+    );
+
+    List<MyPagePromotionItemResponse> findMyPagePromotions(
+            Long musicianId,
+            String keyword
+    );
+
+    Page<MyPagePromotionTitleItemResponse> findMyPagePromotionTitles(
+            Long musicianId,
+            int page
     );
 
     Optional<MyPagePromotionItemResponse> findMyPagePromotion(
