@@ -61,6 +61,16 @@ public class MyPageController {
     }
 
     @Operation(
+            summary = "내 unread 진단 존재 여부 조회",
+            description = "로그인한 뮤지션의 프로모션 중 읽지 않은 진단 결과가 하나라도 있는지 true/false로 반환합니다."
+    )
+    @GetMapping("/promotions/unread-exists")
+    public boolean hasUnreadDiagnoses(Authentication authentication) {
+        Musician musician = (Musician) authentication.getPrincipal();
+        return myPageService.hasUnreadDiagnoses(musician.getId());
+    }
+
+    @Operation(
             summary = "마이페이지 프로모션 실시간 스트림 구독",
             description = "로그인한 뮤지션의 프로모션 진단 상태 변화를 SSE로 구독합니다."
     )

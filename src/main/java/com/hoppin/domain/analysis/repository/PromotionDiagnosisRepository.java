@@ -4,6 +4,8 @@ import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,5 +23,13 @@ public interface PromotionDiagnosisRepository extends JpaRepository<PromotionDia
             Long promotionId,
             Pageable pageable
     );
+
+    @Query("""
+    select case when count(d) > 0 then true else false end
+    from PromotionDiagnosis d
+    where d.musicPromotion.musician.id = :musicianId
+      and d.readAt is null
+    """)
+    boolean existsUnreadDiagnosisByMusicianId(@Param("musicianId") Long musicianId);
 
 }
