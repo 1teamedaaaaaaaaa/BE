@@ -66,6 +66,8 @@ public class SecurityConfig {
                                 "/r/**",
                                 "/s/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/music-promotions/*/analysis-page").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/music-promotions/*/diagnoses/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/music-promotions/**").permitAll()
                         .requestMatchers("/api/dev/token").permitAll()
                         .requestMatchers(
