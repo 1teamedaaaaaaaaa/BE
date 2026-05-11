@@ -129,6 +129,191 @@ async function extractFollowerCount(page) {
   return normalizeCount(followerRaw);
 }
 
+function normalizeInstagramUsername(value) {
+  if (!value) return "";
+
+  let username = String(value).trim();
+
+  if (username.startsWith("@")) {
+    username = username.slice(1);
+  }
+
+  const match = username.match(/instagram\.com\/([^/?#]+)/i);
+  if (match) {
+    username = match[1];
+  }
+
+  username = username.replace(/\/$/, "");
+
+  return username.trim();
+}
+
+function isValidInstagramUsername(username) {
+  return /^[A-Za-z0-9._]{1,30}$/.test(username);
+}
+
+async function validateInstagramProfile({ username, sessionFile, headless }) {
+  const normalizedUsername = normalizeInstagramUsername(username);
+
+  if (!isValidInstagramUsername(normalizedUsername)) {
+    return {
+      valid: false,
+      status: "INVALID_USERNAME",
+      message: "올바른 인스타그램 계정 형식이 아닙니다."
+    };
+  }
+
+  const browser = await chromium.launch({
+    headless
+  });
+
+  const contextOptions = {
+    viewport: { width: 1440, height: 1200 },
+    userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+  };
+
+  if (sessionFile) {
+    if (!fs.existsSync(sessionFile)) {
+      throw new Error(`Instagram session file not found: ${sessionFile}`);
+    }
+
+    contextOptions.storageState = sessionFile;
+  }
+
+  const context = await browser.newContext(contextOptions);
+  const page = await context.newPage();
+
+  try {
+    const profileUrl = `https://www.instagram.com/${normalizedUsername}/`;
+
+    const response = await page.goto(profileUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000
+    });
+
+    await page.waitForTimeout(3000);
+
+    const currentUrl = page.url();
+
+    if (currentUrl.includes("/accounts/login/")) {
+      return {
+        valid: false,
+        status: "LOGIN_REQUIRED",
+        message: "인스타그램 정보를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요."
+      };
+    }
+
+    const pageInfo = await page.evaluate(() => {
+      const bodyText = document.body?.innerText || "";
+      const metaDescription =
+          document.querySelector('meta[property="og:description"]')?.content || "";
+      const metaTitle =
+          document.querySelector('meta[property="og:title"]')?.content || "";
+
+      const hrefs = Array.from(document.querySelectorAll("a[href]"))
+          .map((a) => a.getAttribute("href"))
+          .filter(Boolean);
+
+      const postLinks = hrefs.filter(
+          (href) => href.includes("/p/") || href.includes("/reel/")
+      );
+
+      return {
+        bodyText,
+        metaDescription,
+        metaTitle,
+        postLinkCount: postLinks.length,
+        combinedText: [bodyText, metaDescription, metaTitle].join(" ")
+      };
+    });
+
+    const text = pageInfo.combinedText;
+    const normalizedText = text.replace(/\s+/g, " ").trim();
+
+// 디버깅용: stderr라 JSON stdout 안 깨짐
+    console.error("validate currentUrl =", currentUrl);
+    console.error("validate response status =", response ? response.status() : "NO_RESPONSE");
+    console.error("validate postLinkCount =", pageInfo.postLinkCount);
+    console.error("validate text sample =", normalizedText.slice(0, 1000));
+
+    if (response && response.status() === 404) {
+      return {
+        valid: false,
+        status: "NOT_FOUND",
+        message: "존재하지 않는 인스타그램 계정입니다."
+      };
+    }
+
+    if (
+        normalizedText.includes("Sorry, this page isn't available") ||
+        normalizedText.includes("This page isn't available") ||
+        normalizedText.includes("페이지를 사용할 수 없습니다") ||
+        normalizedText.includes("사용자를 찾을 수 없음") ||
+        normalizedText.includes("사용자를 찾을 수 없습니다") ||
+        normalizedText.includes("페이지를 찾을 수 없습니다")
+    ) {
+      return {
+        valid: false,
+        status: "NOT_FOUND",
+        message: "존재하지 않는 인스타그램 계정입니다."
+      };
+    }
+
+    const isPrivate =
+        normalizedText.includes("This profile is private") ||
+        normalizedText.includes("This account is private") ||
+        normalizedText.includes("This Account is Private") ||
+        normalizedText.includes("Account is private") ||
+        normalizedText.includes("Private Account") ||
+
+        normalizedText.includes("Follow to see their photos and videos") ||
+        normalizedText.includes("Follow to see their photos and videos.") ||
+
+        normalizedText.includes("비공개 프로필입니다") ||
+        normalizedText.includes("비공개 계정입니다") ||
+        normalizedText.includes("비공개 프로필") ||
+        normalizedText.includes("비공개 계정") ||
+
+        normalizedText.includes("사진과 동영상을 보려면 팔로우하세요") ||
+        normalizedText.includes("사진과 동영상을 보려면 팔로우하세요.") ||
+        normalizedText.includes("팔로우하면 사진과 동영상을 볼 수 있습니다") ||
+        normalizedText.includes("팔로우하면 게시물을 볼 수 있습니다") ||
+        normalizedText.includes("게시물을 보려면 팔로우하세요");
+
+    if (isPrivate) {
+      return {
+        valid: false,
+        status: "PRIVATE_PROFILE",
+        message: "비공개 계정은 분석할 수 없습니다. 계정을 공개로 전환한 뒤 다시 시도해 주세요."
+      };
+    }
+
+    if (pageInfo.postLinkCount === 0) {
+      return {
+        valid: false,
+        status: "NO_PUBLIC_POSTS",
+        message: "공개로 확인 가능한 게시물이 없습니다. 비공개 계정이거나 게시물이 없는 계정일 수 있습니다."
+      };
+    }
+
+    return {
+      valid: true,
+      status: "AVAILABLE",
+      message: "분석 가능한 인스타그램 계정입니다."
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      status: "VALIDATION_FAILED",
+      message: error.message || "인스타그램 계정 확인 중 오류가 발생했습니다."
+    };
+  } finally {
+    await context.close();
+    await browser.close();
+  }
+}
+
 async function extractPostData(page, permalink) {
   return page.evaluate((currentPermalink) => {
     const time = document.querySelector("time");
@@ -262,11 +447,25 @@ async function crawlPublicInstagram({ username, sinceDate, maxPosts, sessionFile
 
 async function main() {
   const args = parseArgs(process.argv);
+
+  const mode = getOptionalArg(args, "mode") || "crawl";
   const username = requireArg(args, "username");
-  const sinceDate = requireArg(args, "since");
-  const maxPosts = Number.parseInt(args.maxPosts || "100", 10);
   const sessionFile = getOptionalArg(args, "sessionFile") || DEFAULT_SESSION_FILE;
   const headless = getOptionalArg(args, "headless") !== "false";
+
+  if (mode === "validate") {
+    const result = await validateInstagramProfile({
+      username,
+      sessionFile,
+      headless
+    });
+
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+    return;
+  }
+
+  const sinceDate = requireArg(args, "since");
+  const maxPosts = Number.parseInt(args.maxPosts || "100", 10);
 
   const result = await crawlPublicInstagram({
     username,
