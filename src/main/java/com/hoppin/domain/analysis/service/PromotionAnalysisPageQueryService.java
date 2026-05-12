@@ -145,6 +145,19 @@ public class PromotionAnalysisPageQueryService {
                 .findTopByPromotion_IdOrderByCreatedAtDesc(promotionId)
                 .orElse(null);
 
+        if (latestJob == null) {
+            return new DiagnosisPageResult(
+                    List.of(),
+                    PromotionAnalysisPageResponse.DiagnosisPage.builder()
+                            .page(pageable.getPageNumber())
+                            .size(pageable.getPageSize())
+                            .totalElements(0)
+                            .totalPages(0)
+                            .hasNext(false)
+                            .build()
+            );
+        }
+
         String status = resolveEmptyDiagnosisStatus(latestJob);
 
         return new DiagnosisPageResult(
