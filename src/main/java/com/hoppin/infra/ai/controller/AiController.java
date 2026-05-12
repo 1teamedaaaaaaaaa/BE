@@ -92,8 +92,8 @@ public class AiController {
     }
 
     @Operation(
-            summary = "최신 AI 진단 결과 읽음 처리",
-            description = "해당 프로모션의 최신 진단 결과를 읽음 처리하여 마이페이지 unread 표시를 제거합니다."
+            summary = "프로모션 AI 진단 결과 전체 읽음 처리",
+            description = "해당 프로모션의 읽지 않은 진단 결과를 모두 읽음 처리하여 마이페이지 unread 표시를 제거합니다."
     )
     @PatchMapping("/promotions/{promotionId}/diagnosis/read")
     public ResponseEntity<ApiResponse<Void>> markDiagnosisAsRead(
@@ -101,7 +101,7 @@ public class AiController {
             @PathVariable Long promotionId
     ) {
         Musician musician = (Musician) authentication.getPrincipal();
-        promotionAnalysisService.markLatestDiagnosisAsRead(musician.getId(), promotionId);
-        return ResponseEntity.ok(ApiResponse.success(null, "최신 진단 결과를 읽음 처리했습니다."));
+        promotionAnalysisService.markAllDiagnosesAsRead(musician.getId(), promotionId);
+        return ResponseEntity.ok(ApiResponse.success(null, "읽지 않은 진단 결과를 모두 읽음 처리했습니다."));
     }
 }
