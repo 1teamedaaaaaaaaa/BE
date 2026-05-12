@@ -393,10 +393,8 @@ public class PromotionAnalysisService {
 
         Musician musician = promotion.getMusician();
 
-        String detailPageUrl = "https://musicpeak.site/mypage/promotions/"
-                + promotionId
-                + "/analysis/"
-                + analysisJobId;
+        String detailPageUrl = "https://musicpeak.site/album/analysis"
+                + promotionId;
 
         String reportImageUrl = promotion.getImageUrl();
 
