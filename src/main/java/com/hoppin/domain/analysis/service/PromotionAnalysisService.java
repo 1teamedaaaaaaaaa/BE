@@ -9,6 +9,8 @@ import com.hoppin.domain.PromotionTrackingLink.repository.PromotionTrackingLinkR
 import com.hoppin.domain.analysis.entity.PromotionActionPlan;
 import com.hoppin.domain.analysis.entity.PromotionCalculatedMetrics;
 import com.hoppin.domain.analysis.enumtype.AnalysisMode;
+import com.hoppin.domain.musician.entity.Musician;
+import com.hoppin.global.exception.ResourceNotFoundException;
 import com.hoppin.infra.ai.dto.response.CalculatedMetricsDto;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisCrawledPost;
 import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
@@ -23,6 +25,7 @@ import com.hoppin.infra.ai.dto.request.AnalysisRequestDto;
 import com.hoppin.infra.ai.dto.response.ActionCardDto;
 import com.hoppin.infra.ai.dto.response.AnalysisResponseDto;
 import com.hoppin.infra.ai.dto.response.DiagnosisDto;
+import com.hoppin.infra.mail.dto.AnalysisMailInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -383,10 +386,26 @@ public class PromotionAnalysisService {
         return musicPromotion.getId();
     }
 
-    public String getPromotionOwnerEmail(Long promotionId) {
+    @Transactional(readOnly = true)
+    public AnalysisMailInfo getAnalysisMailInfo(Long promotionId, Long analysisJobId) {
         MusicPromotion promotion = musicPromotionRepository.findById(promotionId)
-                .orElseThrow(() -> new IllegalArgumentException("프로모션이 존재하지 않습니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("홍보 정보를 찾을 수 없습니다."));
 
-        return promotion.getMusician().getEmail();
+        Musician musician = promotion.getMusician();
+
+        String detailPageUrl = "https://musicpeak.site/mypage/promotions/"
+                + promotionId
+                + "/analysis/"
+                + analysisJobId;
+
+        String reportImageUrl = promotion.getImageUrl();
+
+        return new AnalysisMailInfo(
+                musician.getEmail(),
+                musician.getName(),
+                promotion.getSongTitle(),
+                reportImageUrl,
+                detailPageUrl
+        );
     }
 }
