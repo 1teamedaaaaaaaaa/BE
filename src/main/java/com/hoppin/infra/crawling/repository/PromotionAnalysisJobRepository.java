@@ -6,11 +6,18 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface PromotionAnalysisJobRepository extends JpaRepository<PromotionAnalysisJob, Long> {
 
     Optional<PromotionAnalysisJob> findTopByPromotion_IdOrderByCreatedAtDesc(Long promotionId);
+
+    List<PromotionAnalysisJob> findByPromotion_IdAndStatusInOrderByCreatedAtDesc(
+            Long promotionId,
+            Collection<com.hoppin.infra.crawling.enumtype.AnalysisJobStatus> statuses
+    );
 
     @Modifying
     @Query("""

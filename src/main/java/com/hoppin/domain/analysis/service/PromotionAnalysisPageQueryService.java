@@ -14,7 +14,6 @@ import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
 import com.hoppin.infra.crawling.enumtype.AnalysisJobStatus;
 import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Comparator;
 import java.util.List;
 
@@ -108,44 +109,26 @@ public class PromotionAnalysisPageQueryService {
             Long promotionId,
             Pageable pageable
     ) {
-        Page<PromotionDiagnosis> diagnosisPage =
-                promotionDiagnosisRepository.findPageByMusicPromotion_IdOrderByDiagnosedAtDesc(
-                        promotionId,
-                        pageable
-                );
+        List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> activeJobItems =
+                promotionAnalysisJobRepository.findByPromotion_IdAndStatusInOrderByCreatedAtDesc(
+                                promotionId,
+                                EnumSet.of(AnalysisJobStatus.PENDING, AnalysisJobStatus.RUNNING)
+                        )
+                        .stream()
+                        .map(this::toActiveJobDiagnosis)
+                        .toList();
 
-        if (diagnosisPage.hasContent()) {
-            List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> items =
-                    diagnosisPage.getContent()
-                            .stream()
-                            .map(this::toCompletedDiagnosis)
-                            .toList();
+        List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> completedItems =
+                promotionDiagnosisRepository.findByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId)
+                        .stream()
+                        .map(this::toCompletedDiagnosis)
+                        .toList();
 
-            return new DiagnosisPageResult(
-                    items,
-                    toPageInfo(diagnosisPage)
-            );
-        }
+        List<PromotionAnalysisPageResponse.AnalysisDiagnosisItem> allItems = new ArrayList<>();
+        allItems.addAll(activeJobItems);
+        allItems.addAll(completedItems);
 
-        // 진단 결과가 없는 상태에서 page=1 이상이면 빈 배열로 내려줌
-        if (pageable.getPageNumber() > 0) {
-            return new DiagnosisPageResult(
-                    List.of(),
-                    PromotionAnalysisPageResponse.DiagnosisPage.builder()
-                            .page(pageable.getPageNumber())
-                            .size(pageable.getPageSize())
-                            .totalElements(0)
-                            .totalPages(0)
-                            .hasNext(false)
-                            .build()
-            );
-        }
-
-        PromotionAnalysisJob latestJob = promotionAnalysisJobRepository
-                .findTopByPromotion_IdOrderByCreatedAtDesc(promotionId)
-                .orElse(null);
-
-        if (latestJob == null) {
+        if (allItems.isEmpty()) {
             return new DiagnosisPageResult(
                     List.of(),
                     PromotionAnalysisPageResponse.DiagnosisPage.builder()
@@ -158,34 +141,35 @@ public class PromotionAnalysisPageQueryService {
             );
         }
 
-        String status = resolveEmptyDiagnosisStatus(latestJob);
+        int totalElements = allItems.size();
+        int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
+
+        if (fromIndex >= totalElements) {
+            return new DiagnosisPageResult(
+                    List.of(),
+                    PromotionAnalysisPageResponse.DiagnosisPage.builder()
+                            .page(pageable.getPageNumber())
+                            .size(pageable.getPageSize())
+                            .totalElements(totalElements)
+                            .totalPages((int) Math.ceil((double) totalElements / pageable.getPageSize()))
+                            .hasNext(false)
+                            .build()
+            );
+        }
+
+        int toIndex = Math.min(fromIndex + pageable.getPageSize(), totalElements);
+        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
 
         return new DiagnosisPageResult(
-                List.of(toEmptyDiagnosis(status)),
+                allItems.subList(fromIndex, toIndex),
                 PromotionAnalysisPageResponse.DiagnosisPage.builder()
                         .page(pageable.getPageNumber())
                         .size(pageable.getPageSize())
-                        .totalElements(1)
-                        .totalPages(1)
-                        .hasNext(false)
+                        .totalElements(totalElements)
+                        .totalPages(totalPages)
+                        .hasNext(pageable.getPageNumber() + 1 < totalPages)
                         .build()
         );
-    }
-
-    private String resolveEmptyDiagnosisStatus(PromotionAnalysisJob latestJob) {
-        if (latestJob == null) {
-            return "PENDING";
-        }
-
-        if (latestJob.getStatus() == AnalysisJobStatus.RUNNING) {
-            return "RUNNING";
-        }
-
-        if (latestJob.getStatus() == AnalysisJobStatus.FAILED) {
-            return "FAILED";
-        }
-
-        return "PENDING";
     }
 
     private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toCompletedDiagnosis(
@@ -212,27 +196,17 @@ public class PromotionAnalysisPageQueryService {
                 .build();
     }
 
-    private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toEmptyDiagnosis(String status) {
+    private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toActiveJobDiagnosis(
+            PromotionAnalysisJob job
+    ) {
         return PromotionAnalysisPageResponse.AnalysisDiagnosisItem.builder()
-                .status(status)
+                .status(job.getStatus().name())
                 .diagnosisId(null)
-                .diagnosedDate(null)
+                .diagnosedDate(formatDate(job.getCreatedAt()))
                 .bottleneckType(null)
                 .headline(null)
                 .actionTitle(null)
                 .unread(false)
-                .build();
-    }
-
-    private PromotionAnalysisPageResponse.DiagnosisPage toPageInfo(
-            Page<PromotionDiagnosis> page
-    ) {
-        return PromotionAnalysisPageResponse.DiagnosisPage.builder()
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .hasNext(page.hasNext())
                 .build();
     }
 
