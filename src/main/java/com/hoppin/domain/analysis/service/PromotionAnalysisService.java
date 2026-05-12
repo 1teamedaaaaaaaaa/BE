@@ -188,7 +188,7 @@ public class PromotionAnalysisService {
         return saveAnalysisResultInternal(musicPromotion, job, responseDto);
     }
 
-    public void markLatestDiagnosisAsRead(
+    public void markAllDiagnosesAsRead(
             Long musicianId,
             Long promotionId
     ) {
@@ -197,13 +197,17 @@ public class PromotionAnalysisService {
 
         validateOwner(musicPromotion, musicianId);
 
-        PromotionDiagnosis diagnosis = promotionDiagnosisRepository
-                .findTopByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId)
-                .orElseThrow(() -> new IllegalArgumentException("진단 결과가 존재하지 않습니다. promotionId=" + promotionId));
+        List<PromotionDiagnosis> diagnoses = promotionDiagnosisRepository
+                .findByMusicPromotion_IdOrderByDiagnosedAtDesc(promotionId);
 
-        if (diagnosis.isUnread()) {
-            diagnosis.markRead();
+        if (diagnoses.isEmpty()) {
+            throw new IllegalArgumentException("진단 결과가 존재하지 않습니다. promotionId=" + promotionId);
         }
+
+        diagnoses.stream()
+                .filter(PromotionDiagnosis::isUnread)
+                .forEach(PromotionDiagnosis::markRead);
+
         myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
     }
 
