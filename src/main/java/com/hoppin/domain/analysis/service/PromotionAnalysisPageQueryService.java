@@ -10,9 +10,6 @@ import com.hoppin.domain.analysis.dto.PromotionAnalysisPageResponse;
 import com.hoppin.domain.analysis.entity.PromotionActionPlan;
 import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
 import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
-import com.hoppin.infra.crawling.entity.PromotionAnalysisJob;
-import com.hoppin.infra.crawling.enumtype.AnalysisJobStatus;
-import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +34,6 @@ public class PromotionAnalysisPageQueryService {
     private final PromotionStreamingClickRepository promotionStreamingClickRepository;
     private final PromotionStreamingLinkRepository promotionStreamingLinkRepository;
     private final PromotionDiagnosisRepository promotionDiagnosisRepository;
-    private final PromotionAnalysisJobRepository promotionAnalysisJobRepository;
 
     public PromotionAnalysisPageResponse getAnalysisPage(
             Long musicianId,
@@ -141,38 +137,16 @@ public class PromotionAnalysisPageQueryService {
             );
         }
 
-        PromotionAnalysisJob latestJob = promotionAnalysisJobRepository
-                .findTopByPromotion_IdOrderByCreatedAtDesc(promotionId)
-                .orElse(null);
-
-        String status = resolveEmptyDiagnosisStatus(latestJob);
-
         return new DiagnosisPageResult(
-                List.of(toEmptyDiagnosis(status)),
+                List.of(),
                 PromotionAnalysisPageResponse.DiagnosisPage.builder()
                         .page(pageable.getPageNumber())
                         .size(pageable.getPageSize())
-                        .totalElements(1)
-                        .totalPages(1)
+                        .totalElements(0)
+                        .totalPages(0)
                         .hasNext(false)
                         .build()
         );
-    }
-
-    private String resolveEmptyDiagnosisStatus(PromotionAnalysisJob latestJob) {
-        if (latestJob == null) {
-            return "PENDING";
-        }
-
-        if (latestJob.getStatus() == AnalysisJobStatus.RUNNING) {
-            return "RUNNING";
-        }
-
-        if (latestJob.getStatus() == AnalysisJobStatus.FAILED) {
-            return "FAILED";
-        }
-
-        return "PENDING";
     }
 
     private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toCompletedDiagnosis(
@@ -196,18 +170,6 @@ public class PromotionAnalysisPageQueryService {
                         ? "바로 적용할 액션을 확인해보세요."
                         : defaultIfBlank(firstAction.getTitle(), "바로 적용할 액션을 확인해보세요."))
                 .unread(diagnosis.isUnread())
-                .build();
-    }
-
-    private PromotionAnalysisPageResponse.AnalysisDiagnosisItem toEmptyDiagnosis(String status) {
-        return PromotionAnalysisPageResponse.AnalysisDiagnosisItem.builder()
-                .status(status)
-                .diagnosisId(null)
-                .diagnosedDate(null)
-                .bottleneckType(null)
-                .headline(null)
-                .actionTitle(null)
-                .unread(false)
                 .build();
     }
 
