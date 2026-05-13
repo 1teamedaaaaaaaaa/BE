@@ -1,10 +1,10 @@
 package com.hoppin.domain.musician.controller;
 
+import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.service.MusicianWithdrawService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -35,10 +35,10 @@ public class MusicianWithdrawController {
     )
     @DeleteMapping("/delete")
     public ResponseEntity<Void> withdraw(
-            @AuthenticationPrincipal Long musicianId,
+            @AuthenticationPrincipal Musician musician,
             HttpServletResponse response
     ) {
-        musicianWithdrawService.withdraw(musicianId);
+        musicianWithdrawService.withdraw(musician.getId());
 
         expireCookie(response, "accessToken");
         expireCookie(response, "refreshToken");

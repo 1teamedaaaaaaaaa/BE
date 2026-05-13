@@ -404,7 +404,7 @@ public class PromotionAnalysisService {
 
         return new AnalysisMailInfo(
                 musician.getEmail(),
-                musician.getName(),
+                promotion.getActivityName(),
                 promotion.getSongTitle(),
                 reportImageUrl,
                 detailPageUrl
