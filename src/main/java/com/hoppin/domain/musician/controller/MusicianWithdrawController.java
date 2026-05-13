@@ -2,6 +2,7 @@ package com.hoppin.domain.musician.controller;
 
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.domain.musician.service.MusicianWithdrawService;
+import com.hoppin.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +35,7 @@ public class MusicianWithdrawController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> withdraw(
+    public ResponseEntity<ApiResponse<Void>> withdraw(
             @AuthenticationPrincipal Musician musician,
             HttpServletResponse response
     ) {
@@ -43,7 +44,9 @@ public class MusicianWithdrawController {
         expireCookie(response, "accessToken");
         expireCookie(response, "refreshToken");
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiResponse.success(null, "회원탈퇴가 완료되었습니다.")
+        );
     }
 
     private void expireCookie(HttpServletResponse response, String name) {
