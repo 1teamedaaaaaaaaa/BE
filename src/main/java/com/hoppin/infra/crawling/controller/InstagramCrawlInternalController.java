@@ -3,11 +3,17 @@ package com.hoppin.infra.crawling.controller;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/internal/instagram-crawl")
+@Tag(
+        name = "Internal Instagram Crawl",
+        description = "인스타그램 게시물 크롤링을 실행하는 내부 API"
+)
 public class InstagramCrawlInternalController {
 
     @PostMapping

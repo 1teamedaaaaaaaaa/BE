@@ -77,75 +77,100 @@ public class EmailService {
         String safeDetailPageUrl = HtmlUtils.htmlEscape(detailPageUrl);
 
         return """
-                <!DOCTYPE html>
-                <html lang="ko">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>PEAK AI 홍보 진단 결과</title>
-                </head>
-                <body style="margin:0; padding:0; background-color:#f5f5f5; font-family:Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;">
-                    <div style="max-width:400px; margin:0 auto; background-color:#ffffff; padding:32px 24px; color:#222222;">
-                        
-                        <h2 style="margin:0 0 24px; font-size:22px; line-height:1.4; color:#111111;">
-                            PEAK AI 홍보 진단 결과가 도착했습니다
-                        </h2>
+                <!doctype html>
+                      <html lang="ko">
+                        <head>
+                          <meta charset="UTF-8" />
+                          <title>PEAK AI 홍보 진단 결과</title>
+                        </head>
+                        <body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;">
                 
-                        <p style="margin:0 0 16px; font-size:15px; line-height:1.7;">
-                            안녕하세요, <strong>“%s”</strong>님,
-                        </p>
+                          <!-- 외부 래퍼 -->
+                          <table width="600" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto; background-color: #ffffff;">
+                            <tr>
+                              <td style="padding: 32px 24px; color: #222222;">
                 
-                        <p style="margin:0 0 20px; font-size:15px; line-height:1.7;">
-                            뮤지션 앨범 홍보 진단 서비스 <strong>PEAK</strong>가<br>
-                            <strong>&lt;“%s”&gt;</strong>의 홍보는 잘 되고 있는지 살펴봤어요.<br>
-                            어디 한 번 볼까요?
-                        </p>
+                                <!-- 내부 콘텐츠 -->
+                                <table width="400" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
                 
-                        <div style="margin:24px 0; text-align:center;">
-                            <img src="%s"
-                                 alt="PEAK AI 홍보 진단 결과 이미지"
-                                 width="400"
-                                 style="width:400px; max-width:100%%; height:auto; display:block; border-radius:12px;">
-                        </div>
+                                  <!-- 인사말 -->
+                                  <tr>
+                                    <td style="padding-bottom: 16px; font-size: 14px; line-height: 1.5;">
+                                      안녕하세요, <strong>%s</strong>님,<br />
+                                      뮤지션 앨범 홍보 진단 서비스 <strong>PEAK</strong>가<br />
+                                      <strong>&lt;%s&gt;</strong>의 홍보는 잘 되고 있는지 살펴봤어요.<br />
+                                      아래 '홍보 진단 결과 보기' 버튼을 눌러 내용을 확인할 수 있어요.
+                                    </td>
+                                  </tr>
                 
-                        <p style="margin:0 0 12px; font-size:15px; line-height:1.7;">
-                            마이페이지에서 더 자세한 내용을 확인하실 수 있어요.
-                        </p>
+                                  <!-- 이미지 -->
+                                  <tr>
+                                    <td align="center" style="padding: 24px 0;">
+                                      <img
+                                        src="https://www.musicpeak.site/character/modal-mail-success.png"
+                                        alt="PEAK"
+                                        width="189"
+                                        style="display: block; width: 189px; height: auto;"
+                                      />
+                                    </td>
+                                  </tr>
                 
-                        <p style="margin:0 0 12px; font-size:15px; line-height:1.7;">
-                            발매 직후 14일, 리스너들이 어디에서 반응하는지 잘 관찰해보세요.
-                        </p>
+                                  <!-- 버튼 -->
+                                  <tr>
+                                    <td align="center" style="padding-bottom: 36px;">
+                                      <table width="300" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                          <td align="center" bgcolor="#6a40fc" style="border-radius: 52px;">
+                                            <a
+                                              href="%s"
+                                              target="_blank"
+                                              rel="noreferrer noopener"
+                                              style="display: block; padding: 15px 0; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold;"
+                                            >
+                                              홍보 진단 결과 보기
+                                            </a>
+                                          </td>
+                                        </tr>
+                                      </table>
+                                    </td>
+                                  </tr>
                 
-                        <p style="margin:0 0 28px; font-size:15px; line-height:1.7;">
-                            약한 지점은 보완하고, 잘 되는 요소는 살려서<br>
-                            이번 앨범은 <strong>PEAK 찍기</strong> 도전!
-                        </p>
+                                  <!-- 본문 -->
+                                  <tr>
+                                    <td style="padding: 24px 0; font-size: 14px; line-height: 1.5;">
+                                      발매 직후 14일, 리스너들이 어디에서 반응하는지 잘 관찰해보세요.<br />
+                                      약한 지점은 보완하고, 잘 되는 요소는 살려서 <br />이번 앨범은
+                                      <strong>PEAK 찍기</strong> 도전!
+                                    </td>
+                                  </tr>
                 
-                        <div style="text-align:center; margin:28px 0 36px;">
-                            <a href="%s"
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               style="display:inline-block; width:100%%; max-width:320px; padding:15px 0; background-color:#111111; color:#ffffff; text-decoration:none; border-radius:10px; font-size:15px; font-weight:bold;">
-                                실시간 홍보 현황 확인하기
-                            </a>
-                        </div>
+                                  <!-- 푸터 -->
+                                  <tr>
+                                    <td bgcolor="#f4f1ff" style="padding: 14px 12px; border-radius: 8px; color: #6c6c6c; font-size: 12px; line-height: 1.6;">
+                                      <ul style="padding-left: 20px; margin: 0;">
+                                        <li style="margin: 0 0 4px;">
+                                          문의 :
+                                          <a href="mailto:csmusicpeak@gmail.com" style="color: #555555; text-decoration: none;">csmusicpeak@gmail.com</a>
+                                        </li>
+                                        <li style="margin: 0;">
+                                          본 메일은 'PEAK' 서비스 소셜 로그인 가입 시 동의하신 '서비스이용약관'
+                                          및 '개인정보처리방침'에 따라 앨범 홍보 진단 신청 대상자에게 발송되는
+                                          결과 안내입니다.
+                                        </li>
+                                      </ul>
+                                    </td>
+                                  </tr>
                 
-                        <div style="max-width:400px; margin:0 auto; padding:18px 16px; background-color:#f1f1f1; border-radius:10px; color:#666666; font-size:12px; line-height:1.6;">
-                            <p style="margin:0 0 10px;">
-                                문의 : <a href="mailto:csmusicpeak@gmail.com" style="color:#555555; text-decoration:none;">csmusicpeak@gmail.com</a>
-                            </p>
-                            <p style="margin:0;">
-                                본 메일은 ‘PEAK’ 서비스 소셜 로그인 가입 시 동의하신 ‘서비스이용약관’ 및 ‘개인정보처리방침’에 따라
-                                앨범 홍보 진단 신청 대상자에게 발송되는 결과 안내입니다.
-                            </p>
-                        </div>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
                 
-                    </div>
-                </body>
-                </html>
+                        </body>
+                      </html>
                 """.formatted(
                 safeMusicianName,
                 safeAlbumName,
-                safeReportImageUrl,
                 safeDetailPageUrl
         );
     }
