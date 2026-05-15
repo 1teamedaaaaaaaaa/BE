@@ -113,35 +113,10 @@ public class PromotionDiagnosisQueryService {
     }
 
     private PromotionDiagnosisDetailResponse.Diagnosis toDiagnosisSection(String highlightSection) {
-        HighlightSectionParts parts = splitHighlightSection(highlightSection);
 
         return PromotionDiagnosisDetailResponse.Diagnosis.builder()
-                .highlightFrom(parts.from())
-                .highlightTo(parts.to())
+                .highlight(highlightSection)
                 .build();
-    }
-
-    private HighlightSectionParts splitHighlightSection(String highlightSection) {
-        if (highlightSection == null || highlightSection.isBlank()) {
-            return new HighlightSectionParts("데이터 부족", "데이터 부족");
-        }
-
-        String[] parts = highlightSection.split(">");
-
-        if (parts.length < 2) {
-            return new HighlightSectionParts(highlightSection.trim(), "");
-        }
-
-        return new HighlightSectionParts(
-                parts[0].trim(),
-                parts[1].trim()
-        );
-    }
-
-    private record HighlightSectionParts(
-            String from,
-            String to
-    ) {
     }
 
     private void validateOwner(MusicPromotion promotion, Long musicianId) {
