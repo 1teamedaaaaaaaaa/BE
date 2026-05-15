@@ -27,6 +27,7 @@ import com.hoppin.infra.ai.dto.response.AnalysisResponseDto;
 import com.hoppin.infra.ai.dto.response.DiagnosisDto;
 import com.hoppin.infra.mail.dto.AnalysisMailInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -293,7 +294,7 @@ public class PromotionAnalysisService {
 
     private void validateOwner(MusicPromotion musicPromotion, Long musicianId) {
         if (!musicPromotion.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("본인의 프로모션만 분석할 수 있습니다.");
+            throw new AccessDeniedException("본인의 프로모션만 분석할 수 있습니다.");
         }
     }
 

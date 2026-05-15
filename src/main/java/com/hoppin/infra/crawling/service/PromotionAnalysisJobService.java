@@ -21,6 +21,7 @@ import com.hoppin.infra.crawling.dto.response.AnalysisJobCreateResponse;
 import com.hoppin.infra.crawling.dto.response.AnalysisJobContextResponse;
 import com.hoppin.infra.crawling.dto.response.AnalysisJobStatusResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -74,7 +75,7 @@ public class PromotionAnalysisJobService {
                 .orElseThrow(() -> new IllegalArgumentException("분석 작업이 존재하지 않습니다. id=" + analysisJobId));
 
         if (!job.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("본인의 분석 작업만 조회할 수 있습니다.");
+            throw new AccessDeniedException("본인의 분석 작업만 조회할 수 있습니다.");
         }
 
         return new AnalysisJobStatusResponse(
@@ -170,7 +171,7 @@ public class PromotionAnalysisJobService {
                 .orElseThrow(() -> new ResourceNotFoundException("분석 작업이 존재하지 않습니다."));
 
         if (!job.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("본인의 분석 작업만 조회할 수 있습니다.");
+            throw new AccessDeniedException("본인의 분석 작업만 조회할 수 있습니다.");
         }
 
         List<AnalysisCrawledPostResponse> posts = promotionAnalysisCrawledPostRepository
@@ -191,7 +192,7 @@ public class PromotionAnalysisJobService {
 
     private void validateOwner(MusicPromotion promotion, Long musicianId) {
         if (!promotion.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("본인의 프로모션만 분석할 수 있습니다.");
+            throw new AccessDeniedException("본인의 프로모션만 분석할 수 있습니다.");
         }
     }
 

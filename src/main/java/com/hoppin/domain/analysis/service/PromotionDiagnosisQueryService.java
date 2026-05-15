@@ -8,6 +8,7 @@ import com.hoppin.domain.analysis.entity.PromotionCalculatedMetrics;
 import com.hoppin.domain.analysis.entity.PromotionDiagnosis;
 import com.hoppin.domain.analysis.repository.PromotionDiagnosisRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,7 +122,7 @@ public class PromotionDiagnosisQueryService {
 
     private void validateOwner(MusicPromotion promotion, Long musicianId) {
         if (!promotion.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("본인의 프로모션만 조회할 수 있습니다.");
+            throw new AccessDeniedException("본인의 프로모션만 조회할 수 있습니다.");
         }
     }
 
