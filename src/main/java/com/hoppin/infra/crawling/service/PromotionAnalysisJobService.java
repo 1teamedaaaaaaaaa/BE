@@ -12,7 +12,6 @@ import com.hoppin.infra.crawling.repository.PromotionAnalysisCrawledPostReposito
 import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
 import com.hoppin.domain.musician.entity.Musician;
 import com.hoppin.global.exception.ResourceNotFoundException;
-import com.hoppin.infra.crawling.client.AnalysisAutomationWebhookClient;
 import com.hoppin.infra.crawling.dto.request.AnalysisCrawlerResultRequest;
 import com.hoppin.infra.ai.dto.request.AnalysisCreateRequest;
 import com.hoppin.infra.crawling.dto.response.AnalysisCrawledPostResponse;
@@ -37,7 +36,7 @@ public class PromotionAnalysisJobService {
     private final PromotionAnalysisCrawledPostRepository promotionAnalysisCrawledPostRepository;
     private final MusicPromotionRepository musicPromotionRepository;
     private final PromotionTrackingLinkRepository promotionTrackingLinkRepository;
-    private final AnalysisAutomationWebhookClient analysisAutomationWebhookClient;
+    private final AnalysisAutomationWebhookDispatcher analysisAutomationWebhookDispatcher;
     private final MyPageSseService myPageSseService;
 
     public AnalysisJobCreateResponse createJob(Long musicianId, Long promotionId, AnalysisCreateRequest request) {
@@ -62,8 +61,8 @@ public class PromotionAnalysisJobService {
                         .build()
         );
 
-//        triggerWebhookAfterCommit(job.getId(), promotion.getId());
-//        myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
+        triggerWebhookAfterCommit(job.getId(), promotion.getId());
+        myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
 
         return new AnalysisJobCreateResponse(job.getId(), job.getStatus().name());
     }
@@ -208,7 +207,7 @@ public class PromotionAnalysisJobService {
     }
 
     private void triggerWebhookAfterCommit(Long analysisJobId, Long promotionId) {
-        Runnable triggerTask = () -> analysisAutomationWebhookClient.trigger(analysisJobId, promotionId);
+        Runnable triggerTask = () -> analysisAutomationWebhookDispatcher.dispatch(analysisJobId, promotionId);
 
         if (!TransactionSynchronizationManager.isActualTransactionActive()) {
             triggerTask.run();
