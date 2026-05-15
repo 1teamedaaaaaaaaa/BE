@@ -16,6 +16,7 @@ import com.hoppin.infra.crawling.repository.PromotionAnalysisJobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -245,7 +246,7 @@ public class PromotionAnalysisPageQueryService {
 
     private void validateOwner(MusicPromotion promotion, Long musicianId) {
         if (!promotion.getMusician().getId().equals(musicianId)) {
-            throw new IllegalArgumentException("본인의 프로모션만 조회할 수 없습니다.");
+            throw new AccessDeniedException("본인의 프로모션만 조회할 수 없습니다.");
         }
     }
 
