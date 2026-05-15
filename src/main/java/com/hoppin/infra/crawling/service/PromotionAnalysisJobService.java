@@ -62,8 +62,8 @@ public class PromotionAnalysisJobService {
                         .build()
         );
 
-        triggerWebhookAfterCommit(job.getId(), promotion.getId());
-        myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
+//        triggerWebhookAfterCommit(job.getId(), promotion.getId());
+//        myPageSseService.publishPromotionUpdatedAfterCommit(musicianId, promotionId);
 
         return new AnalysisJobCreateResponse(job.getId(), job.getStatus().name());
     }
