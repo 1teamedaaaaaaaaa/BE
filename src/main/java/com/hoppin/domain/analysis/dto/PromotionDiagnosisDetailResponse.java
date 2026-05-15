@@ -25,8 +25,7 @@ public class PromotionDiagnosisDetailResponse {
     @Getter
     @Builder
     public static class Diagnosis {
-        private String highlightFrom;
-        private String highlightTo;
+        private String highlight;
     }
 
     @Getter
