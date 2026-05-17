@@ -12,8 +12,7 @@ public class HoppinApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(HoppinApplication.class, args);
-        String s = null;
-        s.length();
+        String password = "1234";
     }
 
 }
