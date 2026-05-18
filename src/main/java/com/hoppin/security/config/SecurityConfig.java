@@ -104,6 +104,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 frontendBaseUrl,
+                "https://musicpeak.site",
                 "http://localhost:3000",
                 "http://localhost:5173"
         ));
