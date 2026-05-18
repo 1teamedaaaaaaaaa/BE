@@ -12,8 +12,5 @@ public class HoppinApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(HoppinApplication.class, args);
-        String password = "1232314";
-
     }
-
 }

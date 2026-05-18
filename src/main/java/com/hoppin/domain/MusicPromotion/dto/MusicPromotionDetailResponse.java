@@ -10,6 +10,7 @@ import java.util.List;
 
 public record MusicPromotionDetailResponse(
         Long promotionId,
+        Long musicianId,
         String activityName,
         String songTitle,
         LocalDate releaseDate,
@@ -27,6 +28,7 @@ public record MusicPromotionDetailResponse(
     ) {
         return new MusicPromotionDetailResponse(
                 promotion.getId(),
+                promotion.getMusician().getId(),
                 promotion.getActivityName(),
                 promotion.getSongTitle(),
                 promotion.getReleaseDate(),
